@@ -1,0 +1,77 @@
+goals:
+    project_row: 1
+    last_row: 56
+    first_project_column: 7
+wiki:
+    name: Svenskt projektnamn
+    project_namespace: Projekt
+    project_template: Mall:Projekt-sida
+    project_parameters:
+        beskrivning: Om projektet
+        samarbetspartners: Partner
+    subpages:
+        - title: Frivillig
+          template_name: Mall:Frivillig-sida
+          parameters:
+            e-post_prefix: Mejlprefix
+        - title: Global Metrics
+          template_name: Mall:Global Metrics-sida
+        - title: Omnämnande
+          template_name: Omnämnande-sida
+        - title: Projektdata
+          template_name: Projektdata-sida
+          add_goals_parameters:
+            interna_mål: Måltexter 2019
+          parameters:
+            ansvarig: Ansvarig
+            projektstart: Projektstart
+            projektslut: Projektslut
+            finansiär: Finansiär
+            budget: Budget
+            finansiär_2: Finansiär 2
+            budget_2: Budget 2
+    year_pages:
+        operational_plan: Verksamhetsplan_2019/Tabell_över_program,_strategi_och_mål
+        simple:
+            <YEAR>: Mall:Årsida
+            Diarum/<YEAR>: Mall:Diarum år
+            Beslut & attesteringar <YEAR>: Mall:Beslut & attesteringar år
+            Utbildning <YEAR>: Mall:Utbildning år
+            Tjänsteresor <YEAR>: Mall:Tjänsteresor år
+            Ansökningar <YEAR>: Mall:Ansökningar år
+            Ekonomiska rapporter <YEAR>: Mall:Ekonomiska rapporter
+            Ledningsrapport <YEAR>: Mall:Ledningsrapport år
+        projects:
+            title: Projekt <YEAR>
+            template: Mall:Årsida för projekt
+            external:
+                number: 2500
+                name: Externa
+        program_overview:
+            colours:
+                - "#339966"
+                - "#006699"
+                - "#990000"
+                - "#FF8C00"
+            title: Verksamhetsplan <YEAR>/Måluppfyllnad/Programöversikt
+            templates:
+                page: Mall:Programöversikt
+                program: Mall:Programöversikt/Program
+                strategy: Mall:Programöversikt/Strategi
+                goal: Mall:Programöversikt/Mål
+                project: Mall:Programöversikt/Projekt
+        categories:
+            general: Föreningen <YEAR>
+            pages:
+                Föreningen <YEAR>:
+                Projekt <YEAR>: Projekt efter verksamhetsår
+                Ledningsrapporter <YEAR>: Ledningsrapporter
+                Ansökningar <YEAR>: Ansökningar
+                Resor <YEAR>: Resor
+                Årsmöte <YEAR>: Årsmöte
+                Checklistor <YEAR>: Checklistor
+phab:
+    api_token: api-...
+    api_url: https://phabricator.wikimedia.org/api
+    parent_project_id: 2480
+    request_delay: 10
