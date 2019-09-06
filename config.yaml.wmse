@@ -13,7 +13,7 @@ wiki:
         - title: Frivillig
           template_name: Mall:Frivillig-sida
           parameters:
-            e-post_prefix: Mejlprefix
+              e-post_prefix: Mejlprefix
         - title: Global Metrics
           template_name: Mall:Global Metrics-sida
         - title: Omnämnande
@@ -21,15 +21,15 @@ wiki:
         - title: Projektdata
           template_name: Projektdata-sida
           add_goals_parameters:
-            interna_mål: Måltexter 2019
+              interna_mål: Måltexter 2019
           parameters:
-            ansvarig: Ansvarig
-            projektstart: Projektstart
-            projektslut: Projektslut
-            finansiär: Finansiär
-            budget: Budget
-            finansiär_2: Finansiär 2
-            budget_2: Budget 2
+              ansvarig: Ansvarig
+              projektstart: Projektstart
+              projektslut: Projektslut
+              finansiär: Finansiär
+              budget: Budget
+              finansiär_2: Finansiär 2
+              budget_2: Budget 2
     year_pages:
         operational_plan: Verksamhetsplan_2019/Tabell_över_program,_strategi_och_mål
         simple:

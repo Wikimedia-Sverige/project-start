@@ -1,6 +1,5 @@
 import logging
-from time import time
-from time import sleep
+from time import sleep, time
 
 import requests
 

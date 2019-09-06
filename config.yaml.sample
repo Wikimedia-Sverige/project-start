@@ -20,17 +20,17 @@ wiki:
     subpages:
         # Title of the subpage.
         - title:
-        # Name of the template used to create subpage.
+          # Name of the template used to create subpage.
           template_name:
           # Mapping between the parameter names in the subpage
           # template and the labels for their values.
           parameters:
-            template_parameter: label
+              template_parameter: label
           # Add this only if the subpage should include goals.
           add_goals_parameters:
-            # Template parameter where the goals template should be
-            # put and the name of the template to use for the goals.
-            template_parameter: Template:Goals
+              # Template parameter where the goals template should be
+              # put and the name of the template to use for the goals.
+              template_parameter: Template:Goals
     year_pages:
         # Page where the operational plan can be found.
         operational_plan:

@@ -2,13 +2,14 @@
 
 import argparse
 import csv
+import datetime
 import logging
 from collections import OrderedDict
-import datetime
 
-from wiki import Wiki
-from phab import Phab
 import yaml
+
+from phab import Phab
+from wiki import Wiki
 
 
 def setup_logging(verbose):
@@ -153,6 +154,7 @@ def add_phab_project(project_information):
     name = project_information["Engelskt projektnamn"]
     description = project_information["About the project"]
     return phab.add_project(name, description)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

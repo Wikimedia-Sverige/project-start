@@ -1,10 +1,10 @@
 import logging
 import re
 
-from pywikibot import Site
-from pywikibot import Page
-from wikitables.util import ftag
 import mwparserfromhell as mwp
+from wikitables.util import ftag
+
+from pywikibot import Page, Site
 
 from template import Template
 
@@ -93,7 +93,7 @@ class Wiki:
                         self._create_goal_fulfillment_text(
                             goals.keys(),
                             goal_fulfillments
-                        )
+                            )  # noqa:E123
                 self._add_subpage(
                     name,
                     subpage["title"],
@@ -317,8 +317,8 @@ class Wiki:
             title,
             page["template"],
             {
-                 "år": self._year,
-                 "projekt": content
+                "år": self._year,
+                "projekt": content
             }
         )
 
@@ -408,7 +408,7 @@ class Wiki:
         ).filter_tags(matches=ftag('table'))[0])
         # Remove ref tags and links.
         table_string = re.sub(
-            "(<ref.*?>.*?</ref>|\[\[.*?\||\]\])",
+            r"(<ref.*?>.*?</ref>|\[\[.*?\||\]\])",
             "",
             table_string,
             flags=re.S
@@ -424,12 +424,12 @@ class Wiki:
             # Split rows on pipes and remove formatting.
             cells = list(filter(None, map(
                 lambda c: c.split("|")[-1].strip(),
-                re.split("[\|\n]\|", row)
+                re.split(r"[\|\n]\|", row)
             )))
             if len(cells) == 3:
                 # Row includes program.
                 program_name, program_number = \
-                    re.match("(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
+                    re.match(r"(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
                 self._programs.append({
                     "number": program_number,
                     "name": program_name,
@@ -440,7 +440,7 @@ class Wiki:
                 # second from the right.
                 strategy, strategy_number, strategy_short = \
                     re.match(
-                        "(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
+                        r"(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
                         cells[-2]
                     ).groups()
                 self._programs[-1]["strategies"].append({

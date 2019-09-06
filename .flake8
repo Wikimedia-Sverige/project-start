@@ -1,4 +1,0 @@
-[flake8]
-exclude =
-    user-config.py,
-    user-password.py
