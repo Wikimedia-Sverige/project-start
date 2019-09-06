@@ -2,12 +2,12 @@
 *.log
 *.yaml
 
-.gitignore
 lib64
 pip-selfcheck.json
 pywikibot.lwp
 throttle.ctrl
 user-password.py
+user-config.py
 pyvenv.cfg
 *.yaml
 
