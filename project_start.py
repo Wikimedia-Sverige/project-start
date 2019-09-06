@@ -138,7 +138,7 @@ def add_wiki_project_pages(project_information, phab_id, phab_name):
         goal_fulfillments
     )
     name = project_information["Svenskt projektnamn"]
-    area = project_information["Område"]
+    area = project_information["Program"]
     wiki.add_project_categories(name, area)
 
 
