@@ -225,7 +225,7 @@ if __name__ == "__main__":
                 )
                 continue
             logging.info(
-                "Adding project '{}'.".format(
+                "Processing project '{}'.".format(
                     project_information["Svenskt projektnamn"]
                 )
             )
