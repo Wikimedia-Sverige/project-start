@@ -238,7 +238,8 @@ class Wiki:
         else:
             page.text = ""
             for category in categories:
-                page.text += "[[Kategori:{}]]\n".format(category)
+                if category != title:
+                    page.text += "[[Kategori:{}]]\n".format(category)
             logging.info("Writing to category page '{}'".format(page.title()))
             logging.debug(page.text)
             if not self._dry_run:
