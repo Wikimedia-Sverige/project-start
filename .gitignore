@@ -9,7 +9,6 @@ throttle.ctrl
 user-password.py
 user-config.py
 pyvenv.cfg
-*.yaml
 
 __pycache__/
 bin/
