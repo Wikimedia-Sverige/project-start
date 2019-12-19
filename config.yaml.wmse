@@ -16,8 +16,6 @@ wiki:
               e-post_prefix: Mejlprefix
         - title: Global Metrics
           template_name: Mall:Global Metrics-sida
-        - title: Omnämnande
-          template_name: Omnämnande-sida
         - title: Projektdata
           template_name: Projektdata-sida
           add_goals_parameters:
@@ -39,6 +37,7 @@ wiki:
             Utbildning <YEAR>: Mall:Utbildning år
             Tjänsteresor <YEAR>: Mall:Tjänsteresor år
             Ansökningar <YEAR>: Mall:Ansökningar år
+            Omnämnande <YEAR>: Mall:Omnämnande år
             Ekonomiska rapporter <YEAR>: Mall:Ekonomiska rapporter
             Ledningsrapport <YEAR>: Mall:Ledningsrapport år
         projects:
