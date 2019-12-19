@@ -539,5 +539,8 @@ class Wiki:
             title = self._make_year_title(page)
             categories = [general]
             if extra_category:
-                categories.append(extra_category)
+                if isinstance(extra_category, list):
+                    categories += extra_category
+                else:
+                    categories.append(extra_category)
             self._add_category_page(title, categories)
