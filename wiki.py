@@ -67,6 +67,7 @@ class Wiki:
             project_parameters = self._config["project_parameters"].items()
             for template_parameter, label in project_parameters:
                 template.add_parameter(template_parameter, parameters[label])
+            template.add_parameter("year", self._year)
             template.add_parameter("phabricatorId", phab_id)
             template.add_parameter("phabricatorName", phab_name)
             content = "{}".format(template)
