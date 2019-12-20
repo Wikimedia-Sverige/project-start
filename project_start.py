@@ -116,7 +116,8 @@ def get_goal_name(description):
     return description.split(" - ")[0]
 
 
-def add_wiki_project_pages(project_information, project_columns, phab_id, phab_name):
+def add_wiki_project_pages(project_information, project_columns,
+                           phab_id, phab_name):
     """Add a project page to the wiki.
 
     Also adds relevant subpages.
@@ -214,13 +215,16 @@ if __name__ == "__main__":
     else:
         year = datetime.date.today().year
     project_columns = config["project_columns"]
-    wiki = Wiki(config["wiki"], project_columns, args.dry_run, args.overwrite_wiki, year)
+    wiki = Wiki(config["wiki"], project_columns, args.dry_run,
+                args.overwrite_wiki, year)
     phab = Phab(config["phab"], args.dry_run)
     with open(args.project_file[0]) as file_:
         projects_reader = csv.DictReader(file_, delimiter="\t")
         for project_information in projects_reader:
-            superproject = project_information[project_columns["super_project"]]
-            project_name = project_information[project_columns["english_name"]]
+            superproject = project_information[
+                project_columns["super_project"]]
+            project_name = project_information[
+                project_columns["english_name"]]
             if superproject:
                 # Don't add anything for subprojects.
                 continue
@@ -234,8 +238,10 @@ if __name__ == "__main__":
                     project_information[project_columns["swedish_name"]]
                 )
             )
-            phab_id, phab_name = add_phab_project(project_information, project_columns)
-            add_wiki_project_pages(project_information, project_columns, phab_id, phab_name)
+            phab_id, phab_name = add_phab_project(project_information,
+                                                  project_columns)
+            add_wiki_project_pages(project_information, project_columns,
+                                   phab_id, phab_name)
             goals[project_name]["added"] = True
             wiki.add_project(
                 project_information[project_columns["project_id"]],

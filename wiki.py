@@ -69,7 +69,9 @@ class Wiki:
             template = Template(self._config["project_template"], True)
             project_parameters = self._config["project_parameters"].items()
             for template_parameter, label in project_parameters:
-                template.add_parameter(template_parameter, parameters[self._project_columns[label]])
+                template.add_parameter(
+                    template_parameter,
+                    parameters[self._project_columns[label]])
             template.add_parameter("phabricatorId", phab_id)
             template.add_parameter("phabricatorName", phab_name)
             content = "{}".format(template)
@@ -82,7 +84,8 @@ class Wiki:
                 subpage_parameters = {}
                 if "parameters" in subpage:
                     for key, label in subpage["parameters"].items():
-                        subpage_parameters[key] = parameters[self._project_columns[label]]
+                        subpage_parameters[key] = parameters[
+                            self._project_columns[label]]
                 if "add_goals_parameters" in subpage:
                     # Special case for goals parameters, as they are not
                     # just copied.
