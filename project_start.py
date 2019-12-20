@@ -158,12 +158,6 @@ def add_phab_project(project_information, project_columns):
     return phab.add_project(name, description)
 
 
-def process_project():
-    """Process a single project.
-
-    """
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -194,11 +188,6 @@ if __name__ == "__main__":
         "-c",
         help="Config file.",
         default="config.yaml"
-    )
-    parser.add_argument(
-        "--project",
-        "-p",
-        help="Single project to creat, given as a row index in the project file. If not given, all projects will be processed."  # noqa: E501
     )
     parser.add_argument(
         "project_file",
