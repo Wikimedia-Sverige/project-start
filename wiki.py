@@ -93,7 +93,7 @@ class Wiki:
                         self._create_goal_fulfillment_text(
                             goals.keys(),
                             goal_fulfillments
-                            )  # noqa:E123
+                        )  # noqa:E123
                 self._add_subpage(
                     name,
                     subpage["title"],
