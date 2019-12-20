@@ -116,7 +116,7 @@ def get_goal_name(description):
     return description.split(" - ")[0]
 
 
-def add_wiki_project_pages(project_information, phab_id, phab_name):
+def add_wiki_project_pages(project_information, project_columns, phab_id, phab_name):
     """Add a project page to the wiki.
 
     Also adds relevant subpages.
@@ -130,7 +130,7 @@ def add_wiki_project_pages(project_information, phab_id, phab_name):
         Name of the project on Phabricator
     """
     logging.info("Adding wiki pages.")
-    english_name = project_information["Engelskt projektnamn"]
+    english_name = project_information[project_columns["english_name"]]
     wiki.add_project_page(
         phab_id,
         phab_name,
@@ -138,12 +138,12 @@ def add_wiki_project_pages(project_information, phab_id, phab_name):
         goals[english_name],
         goal_fulfillments
     )
-    name = project_information["Svenskt projektnamn"]
-    area = project_information["Program"]
+    name = project_information[project_columns["swedish_name"]]
+    area = project_information[project_columns["area"]]
     wiki.add_project_categories(name, area)
 
 
-def add_phab_project(project_information):
+def add_phab_project(project_information, project_columns):
     """Add a project on Phabricator.
 
     Parameters
@@ -151,8 +151,8 @@ def add_phab_project(project_information):
     project_information : dict
     """
     logging.info("Adding Phabricator project.")
-    name = project_information["Engelskt projektnamn"]
-    description = project_information["About the project"]
+    name = project_information[project_columns["english_name"]]
+    description = project_information[project_columns["about_english"]]
     return phab.add_project(name, description)
 
 
@@ -211,13 +211,14 @@ if __name__ == "__main__":
         year = args.year
     else:
         year = datetime.date.today().year
-    wiki = Wiki(config["wiki"], args.dry_run, args.overwrite_wiki, year)
+    project_columns = config["project_columns"]
+    wiki = Wiki(config["wiki"], project_columns, args.dry_run, args.overwrite_wiki, year)
     phab = Phab(config["phab"], args.dry_run)
     with open(args.project_file[0]) as file_:
         projects_reader = csv.DictReader(file_, delimiter="\t")
         for project_information in projects_reader:
-            superproject = project_information["Överprojekt"]
-            project_name = project_information["Engelskt projektnamn"]
+            superproject = project_information[project_columns["super_project"]]
+            project_name = project_information[project_columns["english_name"]]
             if superproject:
                 # Don't add anything for subprojects.
                 continue
@@ -228,15 +229,15 @@ if __name__ == "__main__":
                 continue
             logging.info(
                 "Processing project '{}'.".format(
-                    project_information["Svenskt projektnamn"]
+                    project_information[project_columns["swedish_name"]]
                 )
             )
-            phab_id, phab_name = add_phab_project(project_information)
-            add_wiki_project_pages(project_information, phab_id, phab_name)
+            phab_id, phab_name = add_phab_project(project_information, project_columns)
+            add_wiki_project_pages(project_information, project_columns, phab_id, phab_name)
             goals[project_name]["added"] = True
             wiki.add_project(
-                project_information["Projektnummer"],
-                project_information["Svenskt projektnamn"]
+                project_information[project_columns["project_id"]],
+                project_information[project_columns["swedish_name"]]
             )
     wiki.parse_programs()
     for project, parameters in goals.items():

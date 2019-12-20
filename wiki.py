@@ -25,9 +25,10 @@ class Wiki:
 
     """
 
-    def __init__(self, config, dry_run, overwrite, year):
+    def __init__(self, config, project_columns, dry_run, overwrite, year):
         self._site = Site()
         self._config = config
+        self._project_columns = project_columns
         self._dry_run = dry_run
         self._overwrite = overwrite
         self._year = year
@@ -56,7 +57,7 @@ class Wiki:
             Passed to template as parameter "samarbetspartners".
 
         """
-        name = parameters[self._config["name"]]
+        name = parameters[self._project_columns["swedish_name"]]
         page = Page(self._site, name, self._config["project_namespace"])
         if page.exists() and not self._overwrite:
             logging.warning(
@@ -66,7 +67,7 @@ class Wiki:
             template = Template(self._config["project_template"], True)
             project_parameters = self._config["project_parameters"].items()
             for template_parameter, label in project_parameters:
-                template.add_parameter(template_parameter, parameters[label])
+                template.add_parameter(template_parameter, parameters[self._project_columns[label]])
             template.add_parameter("phabricatorId", phab_id)
             template.add_parameter("phabricatorName", phab_name)
             content = "{}".format(template)
@@ -78,8 +79,8 @@ class Wiki:
             for subpage in self._config["subpages"]:
                 subpage_parameters = {}
                 if "parameters" in subpage:
-                    for key, value in subpage["parameters"].items():
-                        subpage_parameters[key] = parameters[value]
+                    for key, label in subpage["parameters"].items():
+                        subpage_parameters[key] = parameters[self._project_columns[label]]
                 if "add_goals_parameters" in subpage:
                     # Special case for goals parameters, as they are not
                     # just copied.

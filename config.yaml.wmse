@@ -2,18 +2,34 @@ goals:
     project_row: 1
     last_row: 56
     first_project_column: 7
+project_columns:
+    lead: Ansvarig
+    e_mail: Mejlprefix
+    project_id: Projektnummer
+    area: Program
+    swedish_name: Svenskt projektnamn
+    english_name: Engelskt projektnamn
+    about_english: About the project
+    about_swedish: Om projektet
+    project_start: Projektstart
+    project_end: Projektslut
+    funder: Finansiär
+    funder_2: Finansiär 2
+    budget: Budget
+    budget_2: Budget 2
+    partners: Partner
+    super_project: Överprojekt
 wiki:
-    name: Svenskt projektnamn
     project_namespace: Projekt
     project_template: Mall:Projekt-sida
     project_parameters:
-        beskrivning: Om projektet
-        samarbetspartners: Partner
+        beskrivning: about_swedish
+        samarbetspartners: partners
     subpages:
         - title: Frivillig
           template_name: Mall:Frivillig-sida
           parameters:
-              e-post_prefix: Mejlprefix
+              e-post_prefix: e_mail
         - title: Global Metrics
           template_name: Mall:Global Metrics-sida
         - title: Omnämnande
@@ -23,13 +39,13 @@ wiki:
           add_goals_parameters:
               interna_mål: Måltexter 2019
           parameters:
-              ansvarig: Ansvarig
-              projektstart: Projektstart
-              projektslut: Projektslut
-              finansiär: Finansiär
-              budget: Budget
-              finansiär_2: Finansiär 2
-              budget_2: Budget 2
+              ansvarig: lead
+              projektstart: project_start
+              projektslut: project_end
+              finansiär: funder
+              budget: budget
+              finansiär_2: funder_2
+              budget_2: budget_2
     year_pages:
         operational_plan: Verksamhetsplan_2019/Tabell_över_program,_strategi_och_mål
         simple:
