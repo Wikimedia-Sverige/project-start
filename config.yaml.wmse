@@ -19,6 +19,7 @@ project_columns:
     budget_2: Budget 2
     partners: Partner
     super_project: Överprojekt
+    skip: Inaktiv
 wiki:
     project_namespace: Projekt
     project_template: Mall:Projekt-sida
