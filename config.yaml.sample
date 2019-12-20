@@ -6,14 +6,15 @@ goals:
     last_row:
     # The index of the column with first project.
     first_project_column:
+# Mapping of column headers in the projects spreadsheet to canonical labels
+project_columns:
+    canonical_label: column_header
 # Parameters for wiki pages
 wiki:
-    # The label (first row value) for the Swedish project names.
-    name:
     # Name of the template used to create the project page.
     project_template:
     # Mapping between the parameter names in the project page template
-    # and the labels for their values.
+    # and the canonical label in project_columns above.
     project_parameters:
         template_parameter: label
     # A list of subpages that should be created under the project page.
@@ -23,7 +24,7 @@ wiki:
           # Name of the template used to create subpage.
           template_name:
           # Mapping between the parameter names in the subpage
-          # template and the labels for their values.
+          # template and the canonical label in project_columns above.
           parameters:
               template_parameter: label
           # Add this only if the subpage should include goals.
