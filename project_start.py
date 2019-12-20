@@ -124,6 +124,7 @@ def add_wiki_project_pages(project_information, project_columns, phab_id, phab_n
     Parameters
     ----------
     project_information : dict
+    project_columns: dict
     phab_id : int
         Id of the project on Phabricator.
     phab_name : str
@@ -149,11 +150,18 @@ def add_phab_project(project_information, project_columns):
     Parameters
     ----------
     project_information : dict
+    project_columns: dict
     """
     logging.info("Adding Phabricator project.")
     name = project_information[project_columns["english_name"]]
     description = project_information[project_columns["about_english"]]
     return phab.add_project(name, description)
+
+
+def process_project():
+    """Process a single project.
+
+    """
 
 
 if __name__ == "__main__":
@@ -186,6 +194,11 @@ if __name__ == "__main__":
         "-c",
         help="Config file.",
         default="config.yaml"
+    )
+    parser.add_argument(
+        "--project",
+        "-p",
+        help="Single project to creat, given as a row index in the project file. If not given, all projects will be processed."  # noqa: E501
     )
     parser.add_argument(
         "project_file",

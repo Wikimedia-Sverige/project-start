@@ -22,7 +22,9 @@ class Wiki:
         `Site` object used by Pywikibot
     _dry_run : bool
         If True, no data is written to the wiki.
-
+    _project_columns: dict
+        Mapping of column headers in the projects spreadsheet to canonical
+        labels
     """
 
     def __init__(self, config, project_columns, dry_run, overwrite, year):
