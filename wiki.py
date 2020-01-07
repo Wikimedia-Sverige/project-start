@@ -428,7 +428,7 @@ class Wiki:
         for row in rows[1:]:
             # Skip first rows; we don't need the headers.
             if not row.rstrip("|}").strip():
-                # This is just the en table row, skip it.
+                # This is just the end table row, skip it.
                 continue
             # Split rows on pipes and remove formatting.
             cells = list(filter(None, map(
