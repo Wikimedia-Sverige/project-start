@@ -407,7 +407,8 @@ class Wiki:
 
         operational_plan_page = Page(
             self._site,
-            self._config["year_pages"]["operational_plan"]
+            self._make_year_title(
+                self._config["year_pages"]["operational_plan"])
         )
         # Get table string. This assumes that it is the first table on
         # the page.

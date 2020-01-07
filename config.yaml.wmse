@@ -45,7 +45,7 @@ wiki:
               finansiär_2: funder_2
               budget_2: budget_2
     year_pages:
-        operational_plan: Verksamhetsplan_2019/Tabell_över_program,_strategi_och_mål
+        operational_plan: Verksamhetsplan_<YEAR>/Tabell_över_program,_strategi_och_mål
         simple:
             <YEAR>: Mall:Årsida
             Diarium/<YEAR>: Mall:Diarium år
