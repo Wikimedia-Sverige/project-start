@@ -92,8 +92,9 @@ class Wiki:
                     # just copied.
                     template_key = \
                         list(subpage["add_goals_parameters"].keys())[0]
-                    template_value = \
+                    template_value = self._make_year_title(
                         subpage["add_goals_parameters"][template_key]
+                    )
                     subpage_parameters[template_key] = \
                         Template(template_value, parameters=goals)
                     subpage_parameters["måluppfyllnad"] = \
