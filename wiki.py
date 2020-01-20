@@ -82,7 +82,9 @@ class Wiki:
             if not self._dry_run:
                 page.save()
             for subpage in self._config["subpages"]:
-                subpage_parameters = {}
+                subpage_parameters = {
+                    "år": self._year  # always pass the year parameter
+                }
                 if "parameters" in subpage:
                     for key, label in subpage["parameters"].items():
                         subpage_parameters[key] = parameters[
