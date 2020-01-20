@@ -35,7 +35,7 @@ wiki:
         - title: Projektdata
           template_name: Projektdata-sida
           add_goals_parameters:
-              interna_mål: Måltexter <YEAR>
+              interna_mål: Måltexter|<YEAR>
           parameters:
               ansvarig: lead
               projektstart: project_start
