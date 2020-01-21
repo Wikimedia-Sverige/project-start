@@ -35,6 +35,8 @@ wiki:
     year_pages:
         # Page where the operational plan can be found.
         operational_plan:
+        # Template where current projects are listed
+        current_projects_template:
         # Map of pages that will be created by substituting
         # templates. Instances of "<YEAR>" in the title are replaced
         # by the actual year.

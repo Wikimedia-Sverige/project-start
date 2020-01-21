@@ -272,6 +272,7 @@ class Wiki:
         self._add_projects_year_page()
         self._add_program_overview_year_page()
         self._add_year_categories()
+        self._update_current_projects_template()
 
     def _make_year_title(self, raw_string):
         """Replace the placeholder "<YEAR>" with the actual year.
@@ -553,3 +554,42 @@ class Wiki:
                 else:
                     categories.append(extra_category)
             self._add_category_page(title, categories)
+
+    def _update_current_projects_template(self):
+        """Update the current projects template with the new projects.
+
+        All category pages are added to a category for the year. Some
+        are added to additional categories.
+
+        """
+
+        template_name = self._config["year_pages"]["current_projects_template"]
+        template_content = (
+            "Aktuella projekt/layout|år={year}\n"
+            "|access={Tillgång}\n"
+            "|use={Användning}\n"
+            "|community={Gemenskapen}\n"
+            "|enabling={Möjliggörande}\n"
+        )
+        project_format = "[[{ns}:{{proj}}|{{proj}}]]".format(
+            ns=self._config["project_namespace"])
+        delimiter = "''' · '''"
+
+        page = Page(self._site, template_name)
+        template_data = {}
+        for program in self._programs:
+            projects = set()
+            for strategy in program.get('strategies'):
+                projects.update(strategy.get("projects"))
+            template_data[program.get('name')] = delimiter.join(
+                [project_format.format(proj=self._projects[project])
+                 for project in sorted(projects)])
+        page.text = (
+            "{{"
+            + template_content.format(year=self._year, **template_data)
+            + "}}\n<noinclude>{{Dokumentation}}</noinclude>"
+        )
+        logging.info("Writing to project page '{}'".format(page.title()))
+        logging.debug(page.text)
+        if not self._dry_run:
+            page.save()

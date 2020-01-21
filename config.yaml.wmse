@@ -46,6 +46,7 @@ wiki:
               budget_2: budget_2
     year_pages:
         operational_plan: Verksamhetsplan_<YEAR>/Tabell_över_program,_strategi_och_mål
+        current_projects_template: Mall:Aktuella projekt
         simple:
             <YEAR>: Mall:Årsida
             Diarium/<YEAR>: Mall:Diarium år
