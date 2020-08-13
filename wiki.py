@@ -81,32 +81,32 @@ class Wiki:
             logging.debug(page.text)
             if not self._dry_run:
                 page.save()
-            for subpage in self._config["subpages"]:
-                subpage_parameters = {}
-                if "parameters" in subpage:
-                    for key, label in subpage["parameters"].items():
-                        subpage_parameters[key] = parameters[
-                            self._project_columns[label]]
-                if "add_goals_parameters" in subpage:
-                    # Special case for goals parameters, as they are not
-                    # just copied.
-                    template_key = \
-                        list(subpage["add_goals_parameters"].keys())[0]
-                    template_value = \
-                        subpage["add_goals_parameters"][template_key]
-                    subpage_parameters[template_key] = \
-                        Template(template_value, parameters=goals)
-                    subpage_parameters["måluppfyllnad"] = \
-                        self._create_goal_fulfillment_text(
-                            goals.keys(),
-                            goal_fulfillments
-                        )  # noqa:E123
-                self._add_subpage(
-                    name,
-                    subpage["title"],
-                    subpage["template_name"],
-                    subpage_parameters
-                )
+        for subpage in self._config["subpages"]:
+            subpage_parameters = {}
+            if "parameters" in subpage:
+                for key, label in subpage["parameters"].items():
+                    subpage_parameters[key] = parameters[
+                        self._project_columns[label]]
+            if "add_goals_parameters" in subpage:
+                # Special case for goals parameters, as they are not
+                # just copied.
+                template_key = \
+                    list(subpage["add_goals_parameters"].keys())[0]
+                template_value = \
+                    subpage["add_goals_parameters"][template_key]
+                subpage_parameters[template_key] = \
+                    Template(template_value, parameters=goals)
+                subpage_parameters["måluppfyllnad"] = \
+                    self._create_goal_fulfillment_text(
+                        goals.keys(),
+                        goal_fulfillments
+                    )  # noqa:E123
+            self._add_subpage(
+                name,
+                subpage["title"],
+                subpage["template_name"],
+                subpage_parameters
+            )
 
     def _add_subpage(
             self,
