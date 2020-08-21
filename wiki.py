@@ -556,40 +556,41 @@ class Wiki:
             self._add_category_page(title, categories)
 
     def _update_current_projects_template(self):
-        """Update the current projects template with the new projects.
+        """Update the current projects template with the new projects."""
+        page_name = self._config["year_pages"]["current_projects_template"]
+        page = Page(self._site, page_name)
+        if page.exists() and not self._overwrite:
+            logging.warning(
+                "Page '{}' already exists. It will not be created.".format(
+                    page.title()
+                )
+            )
+            return
 
-        All category pages are added to a category for the year. Some
-        are added to additional categories.
-
-        """
-
-        template_name = self._config["year_pages"]["current_projects_template"]
-        template_content = (
-            "Aktuella projekt/layout|år={year}\n"
-            "|access={Tillgång}\n"
-            "|use={Användning}\n"
-            "|community={Gemenskapen}\n"
-            "|enabling={Möjliggörande}\n"
-        )
         project_format = "[[{ns}:{{proj}}|{{proj}}]]".format(
             ns=self._config["project_namespace"])
         delimiter = "''' · '''"
-
-        page = Page(self._site, template_name)
         template_data = {}
         for program in self._programs:
             projects = set()
             for strategy in program.get('strategies'):
+                # projects sorted by id to get thematic grouping
                 projects.update(strategy.get("projects"))
             template_data[program.get('name')] = delimiter.join(
                 [project_format.format(proj=self._projects[project])
                  for project in sorted(projects)])
-        page.text = (
-            "{{"
-            + template_content.format(year=self._year, **template_data)
-            + "}}\n<noinclude>{{Dokumentation}}</noinclude>"
+
+        template = Template("Aktuella projekt/layout")
+        template.add_parameter("år", self._year)
+        template.add_parameter("access", template_data["Tillgång"])
+        template.add_parameter("use", template_data["Användning"])
+        template.add_parameter("community", template_data["Gemenskapen"])
+        template.add_parameter("enabling", template_data["Möjliggörande"])
+
+        page.text = "{}\n<noinclude>{{Dokumentation}}</noinclude>".format(
+            template.multiline_string()
         )
-        logging.info("Writing to project page '{}'".format(page.title()))
+        logging.info("Writing to page '{}'.".format(page.title()))
         logging.debug(page.text)
         if not self._dry_run:
             page.save()
