@@ -587,9 +587,8 @@ class Wiki:
         template.add_parameter("community", template_data["Gemenskapen"])
         template.add_parameter("enabling", template_data["Möjliggörande"])
 
-        page.text = "{}\n<noinclude>{{Dokumentation}}</noinclude>".format(
-            template.multiline_string()
-        )
+        page.text = template.multiline_string() + \
+            "\n<noinclude>{{Dokumentation}}</noinclude>"
         logging.info("Writing to page '{}'.".format(page.title()))
         logging.debug(page.text)
         if not self._dry_run:
