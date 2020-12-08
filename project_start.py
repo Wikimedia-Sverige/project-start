@@ -159,12 +159,19 @@ def add_phab_project(project_information, project_columns):
     return phab.add_project(name, description)
 
 
-if __name__ == "__main__":
+def load_args():
+    """Load and process command line arguments.
+    Returns
+    -------
+    argparse.ArgumentParser
+        All encountered arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--year",
         "-y",
-        help="Year for the projects created. If not given, the current year will be used."  # noqa: E501
+        help=("Year for the projects created. "
+              "If not given, the current year will be used.")
     )
     parser.add_argument(
         "--dry-run",
@@ -192,15 +199,21 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "project_file",
-        help="Path to a file containing project information. The data should be tab separated values.",  # noqa: E501
+        help=("Path to a file containing project information. "
+              "The data should be tab separated values."),
         nargs=1
     )
     parser.add_argument(
         "goal_file",
-        help="Path to a file containing information about project goals. The data should be tab separated values.",  # noqa: E501
+        help=("Path to a file containing information about project goals. "
+              "The data should be tab separated values."),
         nargs=1
     )
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = load_args()
     setup_logging(args.verbose)
     logging.info("Creating projects.")
     config_path = args.config
