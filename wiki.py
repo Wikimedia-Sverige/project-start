@@ -71,10 +71,12 @@ class Wiki:
             for template_parameter, label in project_parameters:
                 template.add_parameter(
                     template_parameter,
-                    parameters[self._project_columns[label]])
+                    parameters[self._project_columns[label]]
+                )
             template.add_parameter("year", self._year)
             template.add_parameter("phabricatorId", phab_id)
             template.add_parameter("phabricatorName", phab_name)
+            template.add_parameter("bot", "ja")
             content = "{}".format(template)
             page.text = content
             logging.info("Writing to project page '{}'".format(page.title()))
