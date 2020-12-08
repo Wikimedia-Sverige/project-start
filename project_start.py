@@ -38,13 +38,15 @@ def setup_logging(verbose):
     logging.getLogger().addHandler(stream_handler)
 
 
-def read_goals(tsv):
+def read_goals(tsv, settings):
     """Read goal values from tab separated data.
 
     Parameters
     ----------
     tsv : iterator
         Gives one list per row from tab separated data.
+    settings: dict
+        Goals settings from the config
 
     Returns
     -------
@@ -57,7 +59,7 @@ def read_goals(tsv):
     goals = OrderedDict()
     fulfillments = {}
     for i, row in enumerate(tsv):
-        if i == config["goals"]["last_row"]:
+        if i == settings["last_row"]:
             # Stop reading when we all projects have been read.
             break
         elif row[0] == "":
@@ -70,8 +72,8 @@ def read_goals(tsv):
         if fulfillment:
             fulfillments[name] = fulfillment
         for j, field in enumerate(row):
-            if j >= config["goals"]["first_project_column"]:
-                if i == config["goals"]["project_row"]:
+            if j >= settings["first_project_column"]:
+                if i == settings["project_row"]:
                     # Add keys for all of the projects. Since we
                     # use an ordered dictionary, this allows us to
                     # find the correct project when we add goal
@@ -86,9 +88,9 @@ def read_goals(tsv):
                         # order of the goals when they are added to
                         # the template.
                         goals[project] = OrderedDict()
-                elif i > config["goals"]["project_row"]:
+                elif i > settings["project_row"]:
                     planned_value = field
-                    project_index = j - config["goals"]["first_project_column"]
+                    project_index = j - settings["first_project_column"]
                     project_name = list(goals.keys())[project_index]
                     if planned_value:
                         goals[project_name][name] = planned_value
@@ -209,7 +211,7 @@ if __name__ == "__main__":
     logging.info("Loaded config from '{}'".format(config_path))
     with open(args.goal_file[0]) as file_:
         goals_reader = csv.reader(file_, delimiter="\t")
-        goals, goal_fulfillments = read_goals(goals_reader)
+        goals, goal_fulfillments = read_goals(goals_reader, config["goals"])
     if args.year:
         year = args.year
     else:
