@@ -1,7 +1,7 @@
 goals:
     project_row: 1
     last_row: 56
-    first_project_column: 7
+    first_project_column: F
 project_columns:
     lead: Ansvarig
     e_mail: Mejlprefix

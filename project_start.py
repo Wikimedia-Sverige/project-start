@@ -71,8 +71,10 @@ def read_goals(tsv, settings):
         fulfillment = row[1]
         if fulfillment:
             fulfillments[name] = fulfillment
+        # Convert alphabetic label of column to numeric one where A = 0
+        first_project_column = ord(config["goals"]["first_project_column"]) - 65  # noqa: E501
         for j, field in enumerate(row):
-            if j >= settings["first_project_column"]:
+            if j >= first_project_column:
                 if i == settings["project_row"]:
                     # Add keys for all of the projects. Since we
                     # use an ordered dictionary, this allows us to
@@ -90,7 +92,7 @@ def read_goals(tsv, settings):
                         goals[project] = OrderedDict()
                 elif i > settings["project_row"]:
                     planned_value = field
-                    project_index = j - settings["first_project_column"]
+                    project_index = j - first_project_column
                     project_name = list(goals.keys())[project_index]
                     if planned_value:
                         goals[project_name][name] = planned_value
