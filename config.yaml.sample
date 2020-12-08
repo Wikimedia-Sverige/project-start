@@ -11,6 +11,8 @@ project_columns:
     canonical_label: column_header
 # Parameters for wiki pages
 wiki:
+    # default edit summary
+    edit_summary: 
     # Name of the template used to create the project page.
     project_template:
     # Mapping between the parameter names in the project page template

@@ -20,6 +20,7 @@ project_columns:
     partners: Partner
     super_project: Överprojekt
 wiki:
+    edit_summary: Sidan skapad av [[Nyårsbot]]
     project_namespace: Projekt
     project_template: Mall:Projekt-sida
     project_parameters:
