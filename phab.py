@@ -130,11 +130,12 @@ class Phab:
             sleep(wait_time)
         parameters = self._to_phab_parameters(parameters_dict)
         # Add placeholder API token to not reveal the real one in logs.
-        parameters["api.token"] = "api-..."
+        logged_parameters = parameters.copy()
+        logged_parameters["api.token"] = "api-..."
         logging.debug(
             "POST to Phabricator API on {}: {}".format(
                 self._config["api_url"],
-                parameters
+                logged_parameters
             )
         )
         parameters["api.token"] = self._config["api_token"]
