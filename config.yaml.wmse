@@ -62,9 +62,6 @@ wiki:
         projects:
             title: Projekt <YEAR>
             template: Mall:Årsida för projekt
-            external:
-                number: 2500
-                name: Externa
         program_overview:
             colours:
                 - "#339966"

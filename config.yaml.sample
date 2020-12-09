@@ -47,10 +47,6 @@ wiki:
         projects:
             title:
             template:
-            # Special case for the external pseudo program.
-            external:
-                number:
-                name:
         # Parameters for program overview page.
         program_overview:
             # Colours to use in the program headers.
