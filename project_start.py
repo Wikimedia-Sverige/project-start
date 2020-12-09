@@ -125,6 +125,7 @@ def sanitize(unsanitized):
     return sanitized
 
 
+def sanitize_string(unsanitized_string):
     """Sanitize a strings.
 
     * Strips leading and trailing whitespaces
@@ -139,7 +140,6 @@ def sanitize(unsanitized):
     string
         Sanitized string
     """
-def sanitize_string(unsanitized_string):
     sanitized_sring = unsanitized_string.strip()
     return sanitized_sring
 
