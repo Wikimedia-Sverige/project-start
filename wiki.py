@@ -420,7 +420,7 @@ class Wiki:
             table_string,
             flags=re.S
         )
-        _all_projects = list(self._projects.keys())
+        remaining_projects = list(self._projects.keys())
         # Split table on rows.
         rows = table_string.split("|-")
         for row in rows[1:]:
@@ -464,15 +464,15 @@ class Wiki:
                     self._programs[-1]["strategies"][-1]["projects"].append(
                         project
                     )
-                    _all_projects.remove(project)
+                    remaining_projects.remove(project)
             # The rightmost cell always contains a goal.
             goal = cells[-1]
             self._programs[-1]["strategies"][-1]["goals"].append(goal)
-        if _all_projects:
+        if remaining_projects:
             logging.warning(
                 "There were projects which could not be matched to programs, "
                 "these will be skipped from overview pages: '{}'".format(
-                    ', '.join(_all_projects)
+                    ', '.join(remaining_projects)
                 )
             )
 
