@@ -115,13 +115,12 @@ def sanitize(unsanitized):
     """
     sanitized = None
     if isinstance(unsanitized, dict):
-        sanitized = {}
-        for k, v in unsanitized.items():
-            sanitized[sanitize_string(k)] = sanitize_string(v)
+        sanitized = {
+            sanitize_string(k): sanitize_string(v) for
+            k, v in unsanitized.items()
+        }
     elif isinstance(unsanitized, list):
-        sanitized = []
-        for i in unsanitized:
-            sanitized.append(sanitize_string(i))
+        sanitized = [sanitize_string(i) for i in unsanitized]
     return sanitized
 
 
