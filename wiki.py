@@ -36,7 +36,6 @@ class Wiki:
         self._year = year
         self._projects = {}
         self._programs = []
-        self._external_projects = []
 
     def add_project_page(
             self,
@@ -304,12 +303,6 @@ class Wiki:
 
         config = self._config["year_pages"]["projects"]
         content = ""
-        content += "== {} {} ==\n".format(
-            config["external"]["number"],
-            config["external"]["name"]
-        )
-        for project in self._external_projects:
-            content += self._make_project_data_string(project)
         for program in self._programs:
             content += "== {} {} ==\n".format(
                 program["number"],
@@ -322,12 +315,11 @@ class Wiki:
                 )
                 for project in strategy["projects"]:
                     content += self._make_project_data_string(project)
-        page = self._config["year_pages"]["projects"]
-        title = self._make_year_title(page["title"])
+        title = self._make_year_title(config["title"])
         self._add_page_from_template(
             None,
             title,
-            page["template"],
+            config["template"],
             {
                 "år": self._year,
                 "projekt": content
@@ -426,7 +418,7 @@ class Wiki:
             table_string,
             flags=re.S
         )
-        self._external_projects = list(self._projects.keys())
+        remaining_projects = list(self._projects.keys())
         # Split table on rows.
         rows = table_string.split("|-")
         for row in rows[1:]:
@@ -470,10 +462,17 @@ class Wiki:
                     self._programs[-1]["strategies"][-1]["projects"].append(
                         project
                     )
-                    self._external_projects.remove(project)
+                    remaining_projects.remove(project)
             # The rightmost cell always contains a goal.
             goal = cells[-1]
             self._programs[-1]["strategies"][-1]["goals"].append(goal)
+        if remaining_projects:
+            logging.warning(
+                "There were projects which could not be matched to programs, "
+                "these will be skipped from overview pages: '{}'".format(
+                    ', '.join(remaining_projects)
+                )
+            )
 
     def _add_program_overview_year_page(self):
         """Add a page with program overview.
@@ -487,13 +486,6 @@ class Wiki:
         config = self._config["year_pages"]["program_overview"]
         templates = config["templates"]
         content_parameter = ""
-        for project in self._external_projects:
-            content_parameter += Template(
-                templates["project"],
-                True,
-                [project]
-            ).multiline_string()
-            content_parameter += "\n"
         for p, program in enumerate(self._programs):
             content_parameter += Template(
                 templates["program"],

@@ -4,7 +4,8 @@ goals:
     project_row:
     # The index of the row with the last project numbers.
     last_row:
-    # The index of the column with first project.
+    # The index letter of the column with first project. Must be a single upper
+    # case letter.
     first_project_column:
 # Mapping of column headers in the projects spreadsheet to canonical labels
 project_columns:
@@ -49,10 +50,6 @@ wiki:
         projects:
             title:
             template:
-            # Special case for the external pseudo program.
-            external:
-                number:
-                name:
         # Parameters for program overview page.
         program_overview:
             # Colours to use in the program headers.
