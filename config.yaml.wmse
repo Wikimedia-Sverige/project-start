@@ -21,6 +21,7 @@ project_columns:
     super_project: Överprojekt
     skip: Inaktiv
 wiki:
+    edit_summary: Sidan skapad av [[Nyårsbot]]
     project_namespace: Projekt
     project_template: Mall:Projekt-sida
     project_parameters:

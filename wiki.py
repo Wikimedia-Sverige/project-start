@@ -82,11 +82,9 @@ class Wiki:
             logging.info("Writing to project page '{}'".format(page.title()))
             logging.debug(page.text)
             if not self._dry_run:
-                page.save()
+                page.save(summary=self._config["edit_summary"])
             for subpage in self._config["subpages"]:
-                subpage_parameters = {
-                    "år": self._year  # always pass the year parameter
-                }
+                subpage_parameters = {}
                 if "parameters" in subpage:
                     for key, label in subpage["parameters"].items():
                         subpage_parameters[key] = parameters[
@@ -184,7 +182,7 @@ class Wiki:
             logging.info("Writing to page '{}'.".format(page.title()))
             logging.debug(page.text)
             if not self._dry_run:
-                page.save()
+                page.save(summary=self._config["edit_summary"])
 
     def _create_goal_fulfillment_text(self, goals, fulfillments):
         """Create a string with the fulfillment texts for a set of goals.
@@ -255,7 +253,7 @@ class Wiki:
             logging.info("Writing to category page '{}'".format(page.title()))
             logging.debug(page.text)
             if not self._dry_run:
-                page.save()
+                page.save(summary=self._config["edit_summary"])
 
     def add_year_pages(self):
         """Add pages for a new year.
@@ -597,4 +595,4 @@ class Wiki:
         logging.info("Writing to page '{}'.".format(page.title()))
         logging.debug(page.text)
         if not self._dry_run:
-            page.save()
+            page.save(summary=self._config["edit_summary"])

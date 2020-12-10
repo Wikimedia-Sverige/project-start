@@ -129,13 +129,16 @@ class Phab:
             logging.debug("Waiting for {} seconds before making the next request to Conduit.".format(wait_time))  # noqa: E501
             sleep(wait_time)
         parameters = self._to_phab_parameters(parameters_dict)
-        parameters["api.token"] = self._config["api_token"]
+        # Add placeholder API token to not reveal the real one in logs.
+        logged_parameters = parameters.copy()
+        logged_parameters["api.token"] = "api-..."
         logging.debug(
             "POST to Phabricator API on {}: {}".format(
                 self._config["api_url"],
-                parameters
+                logged_parameters
             )
         )
+        parameters["api.token"] = self._config["api_token"]
         self._last_request_time = time()
         response = requests.post(
             "{}/{}".format(self._config["api_url"], endpoint),

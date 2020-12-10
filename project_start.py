@@ -38,13 +38,15 @@ def setup_logging(verbose):
     logging.getLogger().addHandler(stream_handler)
 
 
-def read_goals(tsv):
+def read_goals(tsv, settings):
     """Read goal values from tab separated data.
 
     Parameters
     ----------
     tsv : iterator
         Gives one list per row from tab separated data.
+    settings: dict
+        Goals settings from the config
 
     Returns
     -------
@@ -58,7 +60,7 @@ def read_goals(tsv):
     fulfillments = {}
     for i, unsanitized_row in enumerate(tsv):
         row = sanitize(unsanitized_row)
-        if i == config["goals"]["last_row"]:
+        if i == settings["last_row"]:
             # Stop reading when we all projects have been read.
             break
         elif row[0] == "":
@@ -71,8 +73,8 @@ def read_goals(tsv):
         if fulfillment:
             fulfillments[name] = fulfillment
         for j, field in enumerate(row):
-            if j >= config["goals"]["first_project_column"]:
-                if i == config["goals"]["project_row"]:
+            if j >= settings["first_project_column"]:
+                if i == settings["project_row"]:
                     # Add keys for all of the projects. Since we
                     # use an ordered dictionary, this allows us to
                     # find the correct project when we add goal
@@ -87,9 +89,9 @@ def read_goals(tsv):
                         # order of the goals when they are added to
                         # the template.
                         goals[project] = OrderedDict()
-                elif i > config["goals"]["project_row"]:
+                elif i > settings["project_row"]:
                     planned_value = field
-                    project_index = j - config["goals"]["first_project_column"]
+                    project_index = j - settings["first_project_column"]
                     project_name = list(goals.keys())[project_index]
                     if planned_value:
                         goals[project_name][name] = planned_value
@@ -203,12 +205,19 @@ def add_phab_project(project_information, project_columns):
     return phab.add_project(name, description)
 
 
-if __name__ == "__main__":
+def load_args():
+    """Load and process command line arguments.
+    Returns
+    -------
+    argparse.ArgumentParser
+        All encountered arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--year",
         "-y",
-        help="Year for the projects created. If not given, the current year will be used."  # noqa: E501
+        help=("Year for the projects created. "
+              "If not given, the current year will be used.")
     )
     parser.add_argument(
         "--dry-run",
@@ -236,15 +245,21 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "project_file",
-        help="Path to a file containing project information. The data should be tab separated values.",  # noqa: E501
+        help=("Path to a file containing project information. "
+              "The data should be tab separated values."),
         nargs=1
     )
     parser.add_argument(
         "goal_file",
-        help="Path to a file containing information about project goals. The data should be tab separated values.",  # noqa: E501
+        help=("Path to a file containing information about project goals. "
+              "The data should be tab separated values."),
         nargs=1
     )
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = load_args()
     setup_logging(args.verbose)
     logging.info("Creating projects.")
     config_path = args.config
@@ -253,7 +268,7 @@ if __name__ == "__main__":
     logging.info("Loaded config from '{}'".format(config_path))
     with open(args.goal_file[0], newline="") as file_:
         goals_reader = csv.reader(file_, delimiter="\t")
-        goals, goal_fulfillments = read_goals(goals_reader)
+        goals, goal_fulfillments = read_goals(goals_reader, config["goals"])
     if args.year:
         year = args.year
     else:
