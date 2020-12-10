@@ -317,12 +317,11 @@ class Wiki:
                 )
                 for project in strategy["projects"]:
                     content += self._make_project_data_string(project)
-        page = self._config["year_pages"]["projects"]
-        title = self._make_year_title(page["title"])
+        title = self._make_year_title(config["title"])
         self._add_page_from_template(
             None,
             title,
-            page["template"],
+            config["template"],
             {
                 "år": self._year,
                 "projekt": content
