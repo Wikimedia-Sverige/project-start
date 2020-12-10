@@ -72,7 +72,7 @@ def read_goals(tsv, settings):
         if fulfillment:
             fulfillments[name] = fulfillment
         # Convert alphabetic label of column to numeric one where A = 0
-        first_project_column = ord(config["goals"]["first_project_column"]) - 65  # noqa: E501
+        first_project_column = ord(settings["first_project_column"]) - 65
         for j, field in enumerate(row):
             if j >= first_project_column:
                 if i == settings["project_row"]:
