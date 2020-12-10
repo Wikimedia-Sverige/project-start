@@ -36,7 +36,6 @@ class Wiki:
         self._year = year
         self._projects = {}
         self._programs = []
-        self._all_projects = []
 
     def add_project_page(
             self,
@@ -422,7 +421,7 @@ class Wiki:
             table_string,
             flags=re.S
         )
-        self._all_projects = list(self._projects.keys())
+        _all_projects = list(self._projects.keys())
         # Split table on rows.
         rows = table_string.split("|-")
         for row in rows[1:]:
@@ -466,15 +465,15 @@ class Wiki:
                     self._programs[-1]["strategies"][-1]["projects"].append(
                         project
                     )
-                    self._all_projects.remove(project)
+                    _all_projects.remove(project)
             # The rightmost cell always contains a goal.
             goal = cells[-1]
             self._programs[-1]["strategies"][-1]["goals"].append(goal)
-        if self._all_projects:
+        if _all_projects:
             logging.warning(
                 "There were projects which could not be matched to programs, "
-                "these will be skipped: '{}'".format(
-                    ', '.join(self._all_projects)
+                "these will be skipped from overview pages: '{}'".format(
+                    ', '.join(_all_projects)
                 )
             )
 
