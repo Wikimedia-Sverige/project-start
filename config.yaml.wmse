@@ -89,6 +89,9 @@ wiki:
                 Resor <YEAR>: Resor
                 Årsmöte <YEAR>: Årsmöte
                 Checklistor <YEAR>: Checklistor
+        volunteer_tasks:
+            title: Frivilliguppdrag <YEAR>
+            template: Mall:Frivilliguppdrag år
 phab:
     api_token: api-...
     api_url: https://phabricator.wikimedia.org/api

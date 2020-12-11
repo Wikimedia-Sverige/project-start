@@ -73,6 +73,10 @@ wiki:
             pages:
                 Title 1:
                 Title 2: Extra Category
+        # Parameters for volunteer tasks year page.
+        volunteer_tasks:
+            title:
+            template:
 # Parameters for Phabricator
 phab:
     # API-token for Conduit.
