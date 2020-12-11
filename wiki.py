@@ -590,7 +590,6 @@ class Wiki:
         if not self._dry_run:
             page.save(summary=self._config["edit_summary"])
 
-
     def _add_volunteer_tasks_page(self):
         """Add a page with volunteer tasks.
 
