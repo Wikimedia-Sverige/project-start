@@ -333,6 +333,10 @@ if __name__ == "__main__":
                     break
             if single_project:
                 process_project(single_project, project_columns)
+                wiki.single_project_info(
+                    single_project[project_columns["project_id"]],
+                    single_project[project_columns["swedish_name"]]
+                )
             else:
                 logging.warn(
                     "Project name '{}' could not be found in projects file. "

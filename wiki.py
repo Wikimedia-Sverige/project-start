@@ -588,3 +588,33 @@ class Wiki:
         logging.debug(page.text)
         if not self._dry_run:
             page.save(summary=self._config["edit_summary"])
+
+    def single_project_info(project_id, sv_name):
+        """
+        Output information about any manual updates which must be done.
+
+        Parameters
+        ----------
+        project_id : int
+        sv_name : namn
+        """
+        # Pages needing to be updated if the project was not in the data files
+        # at the time of the start-of-the-year run. Once T270488 is handled
+        # there is no need to have these hardcoded.
+        pages = [
+            "Mall:Projektid",
+            "Mall:Projektnamn"
+        ]
+        # Pages needing to be updated if the project was in the data files but
+        # set to "skip" at the time of the start-of-the-year run.
+        for k, v in self.config["year_pages"].items():
+            if isinstance(v, str):
+                pages.append(self._make_year_title(v))
+            elif v.get("title"):
+                pages.append(self._make_year_title(v["title"]))
+        logging.warning(
+            "Don't forget to manually add '{id} - {name}' to the following "
+            "pages: {pages}".format(
+                id=project_id, name=sv_name, pages='\n* '.join(pages)
+            )
+        )
