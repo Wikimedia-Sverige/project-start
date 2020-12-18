@@ -83,16 +83,13 @@ class Wiki:
             if not self._dry_run:
                 page.save(summary=self._config["edit_summary"])
             for subpage in self._config["subpages"]:
-                subpage_parameters = {}
+                subpage_parameters = {
+                    "år": self._year  # always pass the year parameter
+                }
                 if "parameters" in subpage:
                     for key, label in subpage["parameters"].items():
                         subpage_parameters[key] = parameters[
                             self._project_columns[label]]
-                if "year_parameter" in subpage:
-                    # Add year separately since it is not taken from
-                    # the spreadsheet.
-                    key = subpage["year_parameter"]
-                    subpage_parameters[key] = self._year
                 if "add_goals_parameters" in subpage:
                     # Special case for goals parameters, as they are not
                     # just copied.

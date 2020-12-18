@@ -46,7 +46,6 @@ wiki:
               budget: budget
               finansiär_2: funder_2
               budget_2: budget_2
-          year_parameter: år
     year_pages:
         operational_plan: Verksamhetsplan_<YEAR>/Tabell_över_program,_strategi_och_mål
         current_projects_template: Mall:Aktuella projekt <YEAR>
