@@ -589,7 +589,7 @@ class Wiki:
         if not self._dry_run:
             page.save(summary=self._config["edit_summary"])
 
-    def single_project_info(project_id, sv_name):
+    def single_project_info(self, project_id, sv_name):
         """
         Output information about any manual updates which must be done.
 
