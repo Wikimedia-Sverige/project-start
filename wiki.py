@@ -275,6 +275,7 @@ class Wiki:
         self._add_program_overview_year_page()
         self._add_year_categories()
         self._update_current_projects_template()
+        self._add_volunteer_tasks_page()
 
     def _make_year_title(self, raw_string):
         """Replace the placeholder "<YEAR>" with the actual year.
@@ -588,6 +589,36 @@ class Wiki:
         logging.debug(page.text)
         if not self._dry_run:
             page.save(summary=self._config["edit_summary"])
+
+    def _add_volunteer_tasks_page(self):
+        """Add a page with volunteer tasks.
+
+        Creates a list of volunteer pages sorted by program.
+        """
+        project_list_string = ""
+        for program in self._programs:
+            project_list_string += "== {} ==\n".format(program["name"])
+            for strategy in program["strategies"]:
+                for project_id in strategy["projects"]:
+                    project_name = self._projects[project_id]
+                    project_template = "{{" + \
+                        ":Projekt:{}/Frivillig".format(project_name) + "}}\n"
+                    project_list_string += project_template
+            comment = Template("Utkommenterat", True, ["Platshållare"])
+            project_list_string += "{}&nbsp;\n\n".format(comment)
+
+        config = self._config["year_pages"]["volunteer_tasks"]
+        title = self._make_year_title(config["title"])
+        parameters = {
+            "frivilliguppdrag": project_list_string,
+            "år": self._year
+        }
+        self._add_page_from_template(
+            None,
+            title,
+            config["template"],
+            parameters
+        )
 
     def single_project_info(self, project_id, sv_name):
         """
