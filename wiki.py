@@ -88,6 +88,11 @@ class Wiki:
                     for key, label in subpage["parameters"].items():
                         subpage_parameters[key] = parameters[
                             self._project_columns[label]]
+                if "year_parameter" in subpage:
+                    # Add year separately since it is not taken from
+                    # the spreadsheet.
+                    key = subpage["year_parameter"]
+                    subpage_parameters[key] = self._year
                 if "add_goals_parameters" in subpage:
                     # Special case for goals parameters, as they are not
                     # just copied.
@@ -274,7 +279,7 @@ class Wiki:
         self._add_projects_year_page()
         self._add_program_overview_year_page()
         self._add_year_categories()
-        self._update_current_projects_template()
+        self._create_current_projects_template()
         self._add_volunteer_tasks_page()
 
     def _make_year_title(self, raw_string):
@@ -551,9 +556,11 @@ class Wiki:
                     categories.append(extra_category)
             self._add_category_page(title, categories)
 
-    def _update_current_projects_template(self):
-        """Update the current projects template with the new projects."""
-        page_name = self._config["year_pages"]["current_projects_template"]
+    def _create_current_projects_template(self):
+        """Create a current projects template with the new projects."""
+        page_name = self._make_year_title(
+            self._config["year_pages"]["current_projects_template"]
+        )
         page = Page(self._site, page_name)
         if page.exists() and not self._overwrite:
             logging.warning(

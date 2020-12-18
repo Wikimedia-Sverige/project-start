@@ -28,7 +28,6 @@ wiki:
           template_name:
           # Mapping between the parameter names in the subpage
           # template and the canonical label in project_columns above.
-          # Note that the "år"-parameter is always passed.
           parameters:
               template_parameter: label
           # Add this only if the subpage should include goals.
@@ -36,6 +35,8 @@ wiki:
               # Template parameter where the goals template should be
               # put and the name of the template to use for the goals.
               template_parameter: Template:Goals
+          # Add this parameter with year as value.
+          year_parameter:
     year_pages:
         # Page where the operational plan can be found.
         operational_plan:

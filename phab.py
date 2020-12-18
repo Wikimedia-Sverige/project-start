@@ -133,8 +133,9 @@ class Phab:
         logged_parameters = parameters.copy()
         logged_parameters["api.token"] = "api-..."
         logging.debug(
-            "POST to Phabricator API on {}: {}".format(
+            "POST to Phabricator API on {}/{}: {}".format(
                 self._config["api_url"],
+                endpoint,
                 logged_parameters
             )
         )
