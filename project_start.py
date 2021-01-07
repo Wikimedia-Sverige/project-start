@@ -321,3 +321,5 @@ if __name__ == "__main__":
                 "Project name '{}' found in goals file, but not in projects file. It will not be created.".format(project)  # noqa: E501
             )
     wiki.add_year_pages()
+
+    wiki.log_report()
