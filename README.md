@@ -6,7 +6,11 @@ Install required libraries with pip:
 `$ pip install -r requirements.txt`
 
 # Configuration
-A configuration file, `config.yaml` by default, is needed to run. `config.yaml.sample` has comments documenting the various parameters and can be used as a template. Configure Pywikibot, following the instructions on https://www.mediawiki.org/wiki/Manual:Pywikibot/user-config.py.
+A configuration file, `config.yaml` by default, is needed to run. `config.yaml.sample` has comments documenting the various parameters and can be used as a template.
+
+Configure Pywikibot, following the instructions on https://www.mediawiki.org/wiki/Manual:Pywikibot/user-config.py.
+
+To edit Phabricator, a Conduit API token is required. This can be generated in the user settings: `Settings` -> `Conduit API Tokens`.
 
 # Input Data
 ## Files
