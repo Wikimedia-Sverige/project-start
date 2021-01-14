@@ -243,6 +243,7 @@ def process_project(project_information, project_columns):
 
 def load_args():
     """Load and process command line arguments.
+
     Returns
     -------
     argparse.ArgumentParser
