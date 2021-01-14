@@ -319,45 +319,36 @@ if __name__ == "__main__":
     wiki = Wiki(config["wiki"], project_columns, args.dry_run,
                 args.overwrite_wiki, year)
     phab = Phab(config["phab"], args.dry_run)
+
     with open(args.project_file[0], newline="") as file_:
         projects_reader = csv.DictReader(file_, delimiter="\t")
-        if args.project:
-            # process a single project only
-            single_project = None
-            for unsanitized_project_information in projects_reader:
-                project_information = sanitize(unsanitized_project_information)
-                if args.project in (
+        single_project_found = False
+        for unsanitized_project_information in projects_reader:
+            project_information = sanitize(unsanitized_project_information)
+            if args.project:
+                if args.project not in (
                         project_information[project_columns["swedish_name"]],
                         project_information[project_columns["english_name"]]):
-                    single_project = project_information
-                    break
-            if single_project:
-                process_project(single_project, project_columns)
-                wiki.single_project_info(
-                    single_project[project_columns["project_id"]],
-                    single_project[project_columns["swedish_name"]]
-                )
-            else:
-                logging.warn(
-                    "Project name '{}' could not be found in projects file. "
-                    "It will not be created.".format(args.project)
-                )
-                exit(1)
-        else:
-            for unsanitized_project_information in projects_reader:
-                project_information = sanitize(unsanitized_project_information)
+                    continue
+                else:
+                    single_project_found = True
+                    wiki.single_project_info(
+                        project_information[project_columns["project_id"]],
+                        project_information[project_columns["swedish_name"]]
+                    )
+            elif project_information[project_columns["skip"]]:
                 # handle skip outside of process_project to allow specifying a
                 # single project to override the skip value.
-                if project_information[project_columns["skip"]]:
-                    logging.info(
-                        "Skipping '{}', marked as inactive.".format(
-                            project_information[
-                                project_columns["english_name"]]))
-                    continue
-                process_project(project_information, project_columns)
-    wiki.parse_programs()
+                logging.info(
+                    "Skipping '{}', marked as inactive.".format(
+                        project_information[
+                            project_columns["english_name"]]))
+                continue
+            process_project(project_information, project_columns)
+
     if not args.project:
         # don't create these pages or run the checks unless it's a full run
+        wiki.parse_programs()
         for project, parameters in goals.items():
             if "added" not in parameters:
                 logging.warn(
@@ -365,3 +356,8 @@ if __name__ == "__main__":
                     "projects file. It will not be created.".format(project)
                 )
         wiki.add_year_pages()
+    elif not single_project_found:
+        logging.warn(
+            "Project name '{}' could not be found in projects file. "
+            "It will not be created.".format(args.project)
+        )
