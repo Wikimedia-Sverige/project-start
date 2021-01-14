@@ -638,7 +638,7 @@ class Wiki:
         ]
         # Pages needing to be updated if the project was in the data files but
         # set to "skip" at the time of the start-of-the-year run.
-        for k, v in self.config["year_pages"].items():
+        for k, v in self._config["year_pages"].items():
             if isinstance(v, str):
                 pages.append(self._make_year_title(v))
             elif v.get("title"):
