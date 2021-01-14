@@ -362,3 +362,5 @@ if __name__ == "__main__":
             "Project name '{}' could not be found in projects file. "
             "It will not be created.".format(args.project)
         )
+
+    wiki.log_report()

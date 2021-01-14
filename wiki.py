@@ -36,6 +36,7 @@ class Wiki:
         self._year = year
         self._projects = {}
         self._programs = []
+        self._touched_pages = []
 
     def add_project_page(
             self,
@@ -80,10 +81,11 @@ class Wiki:
             page.text = content
             logging.info("Writing to project page '{}'".format(page.title()))
             logging.debug(page.text)
-            if not self._dry_run:
-                page.save(summary=self._config["edit_summary"])
+            self._write_page(page)
             for subpage in self._config["subpages"]:
-                subpage_parameters = {}
+                subpage_parameters = {
+                    "år": self._year  # always pass the year parameter
+                }
                 if "parameters" in subpage:
                     for key, label in subpage["parameters"].items():
                         subpage_parameters[key] = parameters[
@@ -109,6 +111,19 @@ class Wiki:
                     subpage["template_name"],
                     subpage_parameters
                 )
+
+    def _write_page(self, page):
+        """Write a page unless this is a dry run.
+
+        Parameters
+        ----------
+        page : Page
+            The page to write to.
+
+        """
+        if not self._dry_run:
+            page.save(summary=self._config["edit_summary"])
+        self._touched_pages.append(page)
 
     def _add_subpage(
             self,
@@ -180,8 +195,7 @@ class Wiki:
             page.text = template.multiline_string()
             logging.info("Writing to page '{}'.".format(page.title()))
             logging.debug(page.text)
-            if not self._dry_run:
-                page.save(summary=self._config["edit_summary"])
+            self._write_page(page)
 
     def _create_goal_fulfillment_text(self, goals, fulfillments):
         """Create a string with the fulfillment texts for a set of goals.
@@ -251,8 +265,7 @@ class Wiki:
                     page.text += "[[Kategori:{}]]\n".format(category)
             logging.info("Writing to category page '{}'".format(page.title()))
             logging.debug(page.text)
-            if not self._dry_run:
-                page.save(summary=self._config["edit_summary"])
+            self._write_page(page)
 
     def add_year_pages(self):
         """Add pages for a new year.
@@ -274,7 +287,7 @@ class Wiki:
         self._add_projects_year_page()
         self._add_program_overview_year_page()
         self._add_year_categories()
-        self._update_current_projects_template()
+        self._create_current_projects_template()
         self._add_volunteer_tasks_page()
 
     def _make_year_title(self, raw_string):
@@ -551,9 +564,11 @@ class Wiki:
                     categories.append(extra_category)
             self._add_category_page(title, categories)
 
-    def _update_current_projects_template(self):
-        """Update the current projects template with the new projects."""
-        page_name = self._config["year_pages"]["current_projects_template"]
+    def _create_current_projects_template(self):
+        """Create a current projects template with the new projects."""
+        page_name = self._make_year_title(
+            self._config["year_pages"]["current_projects_template"]
+        )
         page = Page(self._site, page_name)
         if page.exists() and not self._overwrite:
             logging.warning(
@@ -587,8 +602,7 @@ class Wiki:
             "\n<noinclude>{{Dokumentation}}</noinclude>"
         logging.info("Writing to page '{}'.".format(page.title()))
         logging.debug(page.text)
-        if not self._dry_run:
-            page.save(summary=self._config["edit_summary"])
+        self._write_page(page)
 
     def _add_volunteer_tasks_page(self):
         """Add a page with volunteer tasks.
@@ -649,3 +663,10 @@ class Wiki:
                 id=project_id, name=sv_name, pages='\n* '.join(pages)
             )
         )
+
+    def log_report(self):
+        """Log a list of the pages that were modified.
+        """
+        logging.info("These pages were modified:")
+        for page in self._touched_pages:
+            logging.info(page.title())
