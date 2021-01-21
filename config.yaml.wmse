@@ -89,6 +89,7 @@ wiki:
                 Resor <YEAR>: Resor
                 Årsmöte <YEAR>: Årsmöte
                 Checklistor <YEAR>: Checklistor
+                Utbildning <YEAR>: Utbildning
         volunteer_tasks:
             title: Frivilliguppdrag <YEAR>
             template: Mall:Frivilliguppdrag år
