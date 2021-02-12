@@ -90,6 +90,7 @@ wiki:
                 Årsmöte <YEAR>: Årsmöte
                 Checklistor <YEAR>: Checklistor
                 Utbildning <YEAR>: Utbildning
+                Globala mätetal <YEAR>: Globala mätetal
         volunteer_tasks:
             title: Frivilliguppdrag <YEAR>
             template: Mall:Frivilliguppdrag år
