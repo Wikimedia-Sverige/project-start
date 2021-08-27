@@ -361,7 +361,7 @@ class Wiki:
 
         """
 
-        for number, name in self._projects.items():
+        for number in self._projects:
             if number[2:4] == strategy[0:2]:
                 yield number
 
@@ -384,25 +384,29 @@ class Wiki:
 
         """
 
-        name = self._projects[project]
+        name = self._projects[project]["sv"]
         project_template = \
             Template(":Projekt:{}/Projektdata".format(name))
         comment = Template("Utkommenterat", True, [project])
         return "{}{}\n".format(project_template, comment)
 
-    def add_project(self, number, name):
-        """Store project number and name in a map.
+    def add_project(self, number, swedish_name, english_name):
+        """Store project number and name, Swedish and English, in a map.
 
         Parameters
         ----------
         number : str
             Project number.
-        name : str
-            Project name.
-
+        swedish_name : str
+            Swedish project name.
+        english_name : str
+            English project name.
         """
 
-        self._projects[number] = name
+        self._projects[number] = {
+            "sv": swedish_name,
+            "en": english_name
+        }
 
     def parse_programs(self):
         """Parse table with descriptions for program, strategies and names.
@@ -588,7 +592,7 @@ class Wiki:
                 # projects sorted by id to get thematic grouping
                 projects.update(strategy.get("projects"))
             template_data[program.get('name')] = delimiter.join(
-                [project_format.format(proj=self._projects[project])
+                [project_format.format(proj=self._projects[project]["sv"])
                  for project in sorted(projects)])
 
         template = Template("Aktuella projekt/layout")
@@ -613,8 +617,8 @@ class Wiki:
         for program in self._programs:
             project_list_string += "== {} ==\n".format(program["name"])
             for strategy in program["strategies"]:
-                for project_id in strategy["projects"]:
-                    project_name = self._projects[project_id]
+                for number in strategy["projects"]:
+                    project_name = self._projects[number]["sv"]
                     project_template = "{{" + \
                         ":Projekt:{}/Frivillig".format(project_name) + "}}\n"
                     project_list_string += project_template
@@ -634,22 +638,18 @@ class Wiki:
             parameters
         )
 
-    def single_project_info(self, project_id, sv_name):
+    def single_project_info(self, number, sv_name):
         """
         Output information about any manual updates which must be done.
 
         Parameters
         ----------
-        project_id : int
-        sv_name : namn
+        number : int
+        sv_name : str
         """
         # Pages needing to be updated if the project was not in the data files
-        # at the time of the start-of-the-year run. Once T270488 is handled
-        # there is no need to have these hardcoded.
-        pages = [
-            "Mall:Projektid",
-            "Mall:Projektnamn"
-        ]
+        # at the time of the start-of-the-year run.
+        pages = []
         # Pages needing to be updated if the project was in the data files but
         # set to "skip" at the time of the start-of-the-year run.
         for k, v in self._config["year_pages"].items():
@@ -658,15 +658,76 @@ class Wiki:
             elif v.get("title"):
                 pages.append(self._make_year_title(v["title"]))
         logging.warning(
-            "Don't forget to manually add '{id} - {name}' to the following "
-            "pages: {pages}".format(
-                id=project_id, name=sv_name, pages='\n* '.join(pages)
+            "Don't forget to manually add '{number} - {name}' to the "
+            "following pages: {pages}".format(
+                number=number, name=sv_name, pages='\n* '.join(pages)
             )
         )
 
     def log_report(self):
-        """Log a list of the pages that were modified.
-        """
+        """Log a list of the pages that were modified."""
         logging.info("These pages were modified:")
         for page in self._touched_pages:
             logging.info(page.title())
+
+    def update_project_name_template(self):
+        """Update project number and name templates."""
+        name_template = Page(self._site, self._config["project_name_template"])
+        number_template = Page(
+            self._site,
+            self._config["project_number_template"]
+        )
+        for number, name in self._projects.items():
+            english_name = name["en"]
+            swedish_name = name["sv"]
+
+            name_row = (
+                f"| {number} = "
+                "{{#if: {{{en|}}}"
+                f"| {english_name} | {swedish_name} "
+                "}}"
+            )
+            self._insert_row_before_default(name_template, name_row, number)
+
+            number_row = f"| {swedish_name} = {number}"
+            self._insert_row_before_default(
+                number_template,
+                number_row,
+                number
+            )
+
+        self._write_page(name_template)
+        self._write_page(number_template)
+
+    def _insert_row_before_default(self, template, row, number):
+        """Add a row to the template just above the default row.
+
+        If the template already containins the project number or if there
+        is no default, nothing is added. Missing default also outputs
+        a warning since that means something is wrong in the template.
+
+        Parameters
+        ----------
+        template : str
+        row : str
+            The row to add.
+        number : str
+        """
+        if re.search(fr"{number}", template.text):
+            logging.debug(
+                "Skipping adding existing project to template"
+                f" {template}: {number}."
+            )
+            return
+
+        default_row_pattern = r"(\| #default.*)"
+        if not re.search(default_row_pattern, template.text):
+            logging.warning(f"No default row in template {template}.")
+            return
+
+        # Add the row at the bottom, before the default statement.
+        template.text = re.sub(
+            default_row_pattern,
+            fr"{row}\n\1",
+            template.text
+        )

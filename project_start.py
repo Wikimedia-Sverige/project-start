@@ -236,8 +236,9 @@ def process_project(project_information, project_columns):
                            phab_id, phab_name)
     goals[project_name]["added"] = True
     wiki.add_project(
-        project_information[project_columns["project_id"]],
-        project_information[project_columns["swedish_name"]]
+        project_information[project_columns["project_number"]],
+        project_information[project_columns["swedish_name"]],
+        project_information[project_columns["english_name"]]
     )
 
 
@@ -334,7 +335,7 @@ if __name__ == "__main__":
                 else:
                     single_project_found = True
                     wiki.single_project_info(
-                        project_information[project_columns["project_id"]],
+                        project_information[project_columns["project_number"]],
                         project_information[project_columns["swedish_name"]]
                     )
             elif project_information[project_columns["skip"]]:
@@ -363,4 +364,5 @@ if __name__ == "__main__":
             "It will not be created.".format(args.project)
         )
 
+    wiki.update_project_name_template()
     wiki.log_report()

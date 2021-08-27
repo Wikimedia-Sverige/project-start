@@ -5,7 +5,7 @@ goals:
 project_columns:
     lead: Ansvarig
     e_mail: Mejlprefix
-    project_id: Projektnummer
+    project_number: Projektnummer
     area: Program
     swedish_name: Svenskt projektnamn
     english_name: Engelskt projektnamn
@@ -94,6 +94,8 @@ wiki:
         volunteer_tasks:
             title: Frivilliguppdrag <YEAR>
             template: Mall:Frivilliguppdrag år
+    project_name_template: Mall:Projektnamn
+    project_number_template: Mall:Projektid
 phab:
     api_token: api-...
     api_url: https://phabricator.wikimedia.org/api

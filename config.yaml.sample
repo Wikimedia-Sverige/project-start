@@ -14,6 +14,8 @@ project_columns:
 wiki:
     # default edit summary
     edit_summary:
+    # Namspace for projects.
+    project_namespace:
     # Name of the template used to create the project page.
     project_template:
     # Mapping between the parameter names in the project page template
@@ -77,6 +79,10 @@ wiki:
         volunteer_tasks:
             title:
             template:
+    # Template that maps project number to name.
+    project_name_template:
+    # Template that maps project name to number.
+    project_number_template:
 # Parameters for Phabricator
 phab:
     # API-token for Conduit.
