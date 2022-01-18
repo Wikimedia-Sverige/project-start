@@ -7,6 +7,7 @@ from wikitables.util import ftag
 from pywikibot import Page, Site
 
 from template import Template
+from const import Components
 
 
 class Wiki:
@@ -27,37 +28,89 @@ class Wiki:
         labels
     """
 
-    def __init__(self, config, project_columns, dry_run, overwrite, year):
-        self._site = Site()
+    def __init__(
+            self,
+            config,
+            project_columns,
+            dry_run,
+            overwrite,
+            year,
+            goals,
+            goal_fulfillments,
+            components,
+            prompt_year_pages
+    ):
         self._config = config
         self._project_columns = project_columns
         self._dry_run = dry_run
         self._overwrite = overwrite
         self._year = year
+        self._goals = goals
+        self._goal_fulfillments = goal_fulfillments
+        self._components = components
+        self._prompt_year_pages = prompt_year_pages
+        self._site = Site()
         self._projects = {}
         self._programs = []
         self._touched_pages = []
 
     def add_project_page(
             self,
-            phab_id,
-            phab_name,
             parameters,
-            goals,
-            goal_fulfillments
+            phab_id,
+            phab_name
     ):
-        """Add the main project page.
+        """Add pages for a project.
+
+        Adds main page, subpages and categories.
 
         Parameters
         ----------
-        name : str
-            The project name in Swedish. This will be used as title
-            for the page.
-        description : str
-            Passed to template as parameter "beskrivning".
-        partners : str
-            Passed to template as parameter "samarbetspartners".
+        parameters : dict
+            Parameters for the project.
+        phab_id : int
+            Id for the project's Phabricator project.
+        phab_name : str
+            Name of the project's Phabricator project.
+        """
+        if Components.PROJECT_MAIN_PAGE.value in self._components:
+            self._add_project_main_page(parameters, phab_id, phab_name)
+        if self._components is not None:
+            # Get the subpages from component selection.
+            subpages = [
+                self._config["subpages"][s - len(Components) - 1]
+                for s in self._components if s > len(Components)
+            ]
+        else:
+            subpages = self._config["subpages"]
 
+        name = parameters[self._project_columns["swedish_name"]]
+        for subpage in subpages:
+            self._add_subpage(
+                subpage,
+                parameters,
+                name
+            )
+
+        if self._goals:
+            english_name = parameters[self._project_columns["english_name"]]
+            self._goals[english_name]["added"] = True
+
+        if Components.CATEGORIES.value in self._components:
+            area = self._project_columns["area"]
+            self.add_project_categories(name, area)
+
+    def _add_project_main_page(self, parameters, phab_id, phab_name):
+        """Add the main project page, i.e. "Projekt:NAME".
+
+        Parameters
+        ----------
+        parameters : dict
+            Parameters for the project.
+        phab_id : int
+            Id for the project's Phabricator project.
+        phab_name : str
+            Name of the project's Phabricator project.
         """
         name = parameters[self._project_columns["swedish_name"]]
         page = Page(self._site, name, self._config["project_namespace"])
@@ -65,52 +118,24 @@ class Wiki:
             logging.warning(
                 "Project page '{}' already exists. It will not be created.".format(page.title())  # noqa: E501
             )
-        else:
-            template = Template(self._config["project_template"], True)
-            project_parameters = self._config["project_parameters"].items()
-            for template_parameter, label in project_parameters:
-                template.add_parameter(
-                    template_parameter,
-                    parameters[self._project_columns[label]]
-                )
-            template.add_parameter("year", self._year)
-            template.add_parameter("phabricatorId", phab_id)
-            template.add_parameter("phabricatorName", phab_name)
-            template.add_parameter("bot", "ja")
-            content = "{}".format(template)
-            page.text = content
-            logging.info("Writing to project page '{}'".format(page.title()))
-            logging.debug(page.text)
-            self._write_page(page)
-            for subpage in self._config["subpages"]:
-                subpage_parameters = {
-                    "år": self._year  # always pass the year parameter
-                }
-                if "parameters" in subpage:
-                    for key, label in subpage["parameters"].items():
-                        subpage_parameters[key] = parameters[
-                            self._project_columns[label]]
-                if "add_goals_parameters" in subpage:
-                    # Special case for goals parameters, as they are not
-                    # just copied.
-                    template_key = \
-                        list(subpage["add_goals_parameters"].keys())[0]
-                    template_value = self._make_year_title(
-                        subpage["add_goals_parameters"][template_key]
-                    )
-                    subpage_parameters[template_key] = \
-                        Template(template_value, parameters=goals)
-                    subpage_parameters["måluppfyllnad"] = \
-                        self._create_goal_fulfillment_text(
-                            goals.keys(),
-                            goal_fulfillments
-                        )  # noqa:E123
-                self._add_subpage(
-                    name,
-                    subpage["title"],
-                    subpage["template_name"],
-                    subpage_parameters
-                )
+            return
+
+        template = Template(self._config["project_template"], True)
+        project_parameters = self._config["project_parameters"].items()
+        for template_parameter, label in project_parameters:
+            template.add_parameter(
+                template_parameter,
+                parameters[self._project_columns[label]]
+            )
+        template.add_parameter("year", self._year)
+        template.add_parameter("phabricatorId", phab_id)
+        template.add_parameter("phabricatorName", phab_name)
+        template.add_parameter("bot", "ja")
+        content = "{}".format(template)
+        page.text = content
+        logging.info("Writing to project page '{}'".format(page.title()))
+        logging.debug(page.text)
+        self._write_page(page)
 
     def _write_page(self, page):
         """Write a page unless this is a dry run.
@@ -127,33 +152,57 @@ class Wiki:
 
     def _add_subpage(
             self,
-            project,
-            title,
-            template_name,
-            template_parameters=None
+            subpage,
+            project_parameters,
+            project_name,
     ):
         """Add a subpage under the project page.
 
         Parameters
         ----------
-        project : str
-            The project name in Swedish.
-        title : str
-            The title of the subpage. Only the prefix, i.e. the
-            substring after the last slash. This will be prepended by
-            the project name to create the complete subpage title.
-        template_name : str
-            The name of the template to substitute to create the subpage.
-        template_parameters : dict
-            The parameters to pass to the template.
-
+        subpage : dict
+            Parameters for the page.
+        project_parameters : dict
+            Parameters for the project.
+        project_name : str
         """
 
-        full_title = "{}/{}".format(project, title)
+        # Always pass the year parameter.
+        template_parameters = {"år": self._year}
+        if "parameters" in subpage:
+            for key, label in subpage["parameters"].items():
+                template_parameters[key] = project_parameters[
+                    self._project_columns[label]
+                ]
+        if "add_goals_parameters" in subpage:
+            # Special case for goals parameters, as they are not
+            # just copied.
+            if not self._goals:
+                logging.error(
+                    ("Goals need to be supplied for page '{}', "
+                     "it will not be added.")
+                    .format(subpage["title"])
+                )
+                return
+
+            template_key = \
+                list(subpage["add_goals_parameters"].keys())[0]
+            template_value = self._make_year_title(
+                subpage["add_goals_parameters"][template_key]
+            )
+            english_name = project_parameters[
+                self._project_columns["english_name"]
+            ]
+            project_goals = self._goals[english_name]
+            template_parameters[template_key] = \
+                Template(template_value, parameters=project_goals)
+            template_parameters["måluppfyllnad"] = \
+                self._create_goal_fulfillment_text(project_goals)
+        full_title = "{}/{}".format(project_name, subpage["title"])
         self._add_page_from_template(
             self._config["project_namespace"],
             full_title,
-            template_name,
+            subpage["template_name"],
             template_parameters
         )
 
@@ -197,15 +246,13 @@ class Wiki:
             logging.debug(page.text)
             self._write_page(page)
 
-    def _create_goal_fulfillment_text(self, goals, fulfillments):
+    def _create_goal_fulfillment_text(self, goals):
         """Create a string with the fulfillment texts for a set of goals.
 
         Parameters
         ----------
-        goals : list
-            Goal names for which to add fulfillments.
-        fulfillments : dict
-            Map of goal names and fulfillment texts.
+        goals : dict
+            Goals to add fulfillments for.
 
         Returns
         -------
@@ -215,8 +262,10 @@ class Wiki:
         """
 
         fulfillment_text = ""
-        for goal in goals:
-            fulfillment_text += "\n* {}".format(fulfillments[goal])
+        for goal_name in goals.keys():
+            fulfillment_text += "\n* {}".format(
+                self._goal_fulfillments[goal_name]
+            )
         return fulfillment_text
 
     def add_project_categories(self, project, area):
@@ -275,20 +324,29 @@ class Wiki:
 
         """
 
-        simple_pages = self._config["year_pages"]["simple"]
+        year_pages = self._config["year_pages"]
+        simple_pages = year_pages["simple"]
         for raw_title, template_name in simple_pages.items():
             title = self._make_year_title(raw_title)
+            if not self._prompt_year_page(title):
+                continue
+
             self._add_page_from_template(
                 None,
                 title,
                 template_name,
                 [self._year]
             )
-        self._add_projects_year_page()
-        self._add_program_overview_year_page()
-        self._add_year_categories()
-        self._create_current_projects_template()
-        self._add_volunteer_tasks_page()
+        if self._prompt_year_page(year_pages["projects"]["title"]):
+            self._add_projects_year_page()
+        if self._prompt_year_page(year_pages["program_overview"]["title"]):
+            self._add_program_overview_year_page()
+        if self._prompt_year_page("categories"):
+            self._add_year_categories()
+        if self._prompt_year_page(year_pages["current_projects_template"]):
+            self._create_current_projects_template()
+        if self._prompt_year_page(year_pages["volunteer_tasks"]["title"]):
+            self._add_volunteer_tasks_page()
 
     def _make_year_title(self, raw_string):
         """Replace the placeholder "<YEAR>" with the actual year.
@@ -307,6 +365,26 @@ class Wiki:
 
         title = raw_string.replace("<YEAR>", str(self._year))
         return title
+
+    def _prompt_year_page(self, title):
+        """Prompt user for writing year page.
+
+        Parameters
+        ----------
+        title : str
+            Title of the year page.
+
+        Returns
+        -------
+        bool
+            True if the prompt year pages command line is set or if
+            the user answers "y", else False.
+        """
+        if not self._prompt_year_pages:
+            return True
+
+        print('Add page "{}"? (y/N)'.format(self._make_year_title(title)))
+        return input().lower() == "y"
 
     def _add_projects_year_page(self):
         """Create a page with a list of the year's projects.
@@ -384,28 +462,28 @@ class Wiki:
 
         """
 
-        name = self._projects[project]["sv"]
+        name = self._projects[project]["name"]
         project_template = \
             Template(":Projekt:{}/Projektdata".format(name))
         comment = Template("Utkommenterat", True, [project])
         return "{}{}\n".format(project_template, comment)
 
-    def add_project(self, number, swedish_name, english_name):
-        """Store project number and name, Swedish and English, in a map.
+    def add_project(self, number, name, program):
+        """Store project number, name and program.
 
         Parameters
         ----------
         number : str
             Project number.
-        swedish_name : str
-            Swedish project name.
-        english_name : str
-            English project name.
+        name : str
+            Project name.
+        program : str
+            Program that this project belongs to.
         """
 
         self._projects[number] = {
-            "sv": swedish_name,
-            "en": english_name
+            "name": name,
+            "program": program
         }
 
     def parse_programs(self):
@@ -436,6 +514,7 @@ class Wiki:
             table_string,
             flags=re.S
         )
+        programs = []
         remaining_projects = list(self._projects.keys())
         # Split table on rows.
         rows = table_string.split("|-")
@@ -453,7 +532,7 @@ class Wiki:
                 # Row includes program.
                 program_name, program_number = \
                     re.match(r"(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
-                self._programs.append({
+                programs.append({
                     "number": program_number,
                     "name": program_name,
                     "strategies": []
@@ -466,7 +545,7 @@ class Wiki:
                         r"(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
                         cells[-2]
                     ).groups()
-                self._programs[-1]["strategies"].append({
+                programs[-1]["strategies"].append({
                     "number": strategy_number,
                     "description": strategy,
                     "short_description": strategy_short,
@@ -477,13 +556,13 @@ class Wiki:
                         strategy_number
                 ):
                     # Add projects for this strategy.
-                    self._programs[-1]["strategies"][-1]["projects"].append(
+                    programs[-1]["strategies"][-1]["projects"].append(
                         project
                     )
                     remaining_projects.remove(project)
             # The rightmost cell always contains a goal.
             goal = cells[-1]
-            self._programs[-1]["strategies"][-1]["goals"].append(goal)
+            programs[-1]["strategies"][-1]["goals"].append(goal)
         if remaining_projects:
             logging.warning(
                 "There were projects which could not be matched to programs, "
@@ -491,6 +570,7 @@ class Wiki:
                     ', '.join(remaining_projects)
                 )
             )
+        return programs
 
     def _add_program_overview_year_page(self):
         """Add a page with program overview.
@@ -504,7 +584,8 @@ class Wiki:
         config = self._config["year_pages"]["program_overview"]
         templates = config["templates"]
         content_parameter = ""
-        for p, program in enumerate(self._programs):
+        programs = self.parse_programs()
+        for p, program in enumerate(programs):
             content_parameter += Template(
                 templates["program"],
                 True,
@@ -586,13 +667,14 @@ class Wiki:
             ns=self._config["project_namespace"])
         delimiter = "''' · '''"
         template_data = {}
-        for program in self._programs:
-            projects = set()
-            for strategy in program.get('strategies'):
-                # projects sorted by id to get thematic grouping
-                projects.update(strategy.get("projects"))
-            template_data[program.get('name')] = delimiter.join(
-                [project_format.format(proj=self._projects[project]["sv"])
+        for project in self._projects.values():
+            program = project["program"]
+            if program not in template_data:
+                template_data[program] = []
+            template_data[program].append(project["name"])
+        for program, projects in template_data.items():
+            template_data[program] = delimiter.join(
+                [project_format.format(proj=project)
                  for project in sorted(projects)])
 
         template = Template("Aktuella projekt/layout")
@@ -614,13 +696,18 @@ class Wiki:
         Creates a list of volunteer pages sorted by program.
         """
         project_list_string = ""
-        for program in self._programs:
-            project_list_string += "== {} ==\n".format(program["name"])
-            for strategy in program["strategies"]:
-                for number in strategy["projects"]:
-                    project_name = self._projects[number]["sv"]
-                    project_template = "{{" + \
-                        ":Projekt:{}/Frivillig".format(project_name) + "}}\n"
+        # Get programs from the project information.
+        programs = sorted(list(set([
+            p["program"] for p in self._projects.values()
+        ])))
+        for program in programs:
+            project_list_string += "== {} ==\n".format(program)
+            for project in self._projects.values():
+                if project["program"] == program:
+                    project_template = (
+                        "{{" + ":Projekt:{}/Frivillig".format(project["name"])
+                        + "}}\n"
+                    )
                     project_list_string += project_template
             comment = Template("Utkommenterat", True, ["Platshållare"])
             project_list_string += "{}&nbsp;\n\n".format(comment)

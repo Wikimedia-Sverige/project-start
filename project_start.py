@@ -10,6 +10,7 @@ import yaml
 
 from phab import Phab
 from wiki import Wiki
+from const import Components
 
 
 def setup_logging(verbose):
@@ -36,6 +37,53 @@ def setup_logging(verbose):
         logging.Formatter(format_)
     )
     logging.getLogger().addHandler(stream_handler)
+
+
+def pick_components():
+    """Let the user select what components to add.
+
+    Shows a menu with a number for each component. Components are
+    main wiki page, Phabricator project, project categories and
+    subpages on wiki. Selection is made by entering space
+    delimited numbers.
+
+    Returns
+    -------
+    list
+        Seleced numbers.
+    """
+    error = False
+    # These need to match the values in const.Components, starting at
+    # 1.
+    options = [
+        "Project main page",
+        "Phabricator project",
+        "Categories"
+    ]
+    subpages = config["wiki"]["subpages"]
+    options += [s["title"] for s in subpages]
+    for i, option in enumerate(options, start=1):
+        print("{}: {}".format(i, option))
+
+    selection_string = input()
+    if selection_string == "":
+        return []
+
+    try:
+        selection = [int(i) for i in selection_string.split(" ")]
+
+        for s in selection:
+            if s < 1 or s > len(options) + 1:
+                error = True
+                break
+    except ValueError:
+        error = True
+
+    if error:
+        print("Invalid selection")
+        return pick_components()
+
+    return selection
 
 
 def read_goals(tsv, settings):
@@ -182,11 +230,9 @@ def add_wiki_project_pages(project_information, project_columns,
     logging.info("Adding wiki pages.")
     english_name = project_information[project_columns["english_name"]]
     wiki.add_project_page(
-        phab_id,
-        phab_name,
         project_information,
-        goals[english_name],
-        goal_fulfillments
+        phab_id,
+        phab_name
     )
     name = project_information[project_columns["swedish_name"]]
     area = project_information[project_columns["area"]]
@@ -220,7 +266,7 @@ def process_project(project_information, project_columns):
     if superproject:
         # Don't add anything for subprojects.
         return
-    if project_name not in goals:
+    if goals and project_name not in goals:
         logging.warn(
             "Project name '{}' found in projects file, but not in goals file. "
             "It will not be created.".format(project_name)
@@ -231,7 +277,13 @@ def process_project(project_information, project_columns):
             project_information[project_columns["swedish_name"]]
         )
     )
-    phab_id, phab_name = add_phab_project(project_information, project_columns)
+    if components is None or Components.PHABRICATOR.value in components:
+        phab_id, phab_name = add_phab_project(
+            project_information,
+            project_columns
+        )
+    else:
+        phab_id = phab_name = ""
     add_wiki_project_pages(project_information, project_columns,
                            phab_id, phab_name)
     goals[project_name]["added"] = True
@@ -288,6 +340,19 @@ def load_args():
               "If not given, all projects will be processed.")
     )
     parser.add_argument(
+        "--components",
+        "-o",
+        action="store_true",
+        help=("Shows a menu to select components for each "
+              "project. Enter the corresponding numbers delimited by space.")
+    )
+    parser.add_argument(
+        "--prompt-year-pages",
+        "-r",
+        action="store_true",
+        help="Prompt before adding each year page."
+    )
+    parser.add_argument(
         "project_file",
         help=("Path to a file containing project information. "
               "The data should be tab separated values."),
@@ -297,7 +362,7 @@ def load_args():
         "goal_file",
         help=("Path to a file containing information about project goals. "
               "The data should be tab separated values."),
-        nargs=1
+        nargs="?"
     )
     return parser.parse_args()
 
@@ -309,10 +374,23 @@ if __name__ == "__main__":
     config_path = args.config
     with open(config_path) as config_file:
         config = yaml.safe_load(config_file)
-    logging.info("Loaded config from '{}'".format(config_path))
-    with open(args.goal_file[0], newline="") as file_:
-        goals_reader = csv.reader(file_, delimiter="\t")
-        goals, goal_fulfillments = read_goals(goals_reader, config["goals"])
+    logging.debug("Loaded config from '{}'".format(config_path))
+
+    if args.components:
+        components = pick_components()
+    else:
+        components = None
+
+    if args.goal_file:
+        with open(args.goal_file, newline="") as file_:
+            goals_reader = csv.reader(file_, delimiter="\t")
+            goals, goal_fulfillments = read_goals(
+                goals_reader,
+                config["goals"]
+            )
+    else:
+        goals = goal_fulfillments = None
+
     if args.year:
         year = args.year
     else:
@@ -327,6 +405,12 @@ if __name__ == "__main__":
         single_project_found = False
         for unsanitized_project_information in projects_reader:
             project_information = sanitize(unsanitized_project_information)
+            if not project_information[project_columns["swedish_name"]]:
+                # Check if there is a name and skip if not. This is
+                # likely a row that has some text, but not actually
+                # project information.
+                continue
+
             if args.project:
                 if args.project not in (
                         project_information[project_columns["swedish_name"]],
@@ -350,13 +434,14 @@ if __name__ == "__main__":
 
     if not args.project:
         # don't create these pages or run the checks unless it's a full run
-        wiki.parse_programs()
-        for project, parameters in goals.items():
-            if "added" not in parameters:
-                logging.warn(
-                    "Project name '{}' found in goals file, but not in "
-                    "projects file. It will not be created.".format(project)
-                )
+        if goals:
+            for project, parameters in goals.items():
+                if "added" not in parameters:
+                    logging.warn(
+                        "Project name '{}' found in goals file, but "
+                        "not in projects file. It will not be "
+                        "created.".format(project)
+                    )
         wiki.add_year_pages()
     elif not single_project_found:
         logging.warn(
