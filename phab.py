@@ -43,31 +43,21 @@ class Phab:
             Project id and name of the project that was created.
 
         """
-        parent_phid, parent_name = \
-            self._get_project_phid_and_name(self._config["parent_project_id"])
+        parent_phid, parent_name = self._get_project_phid_and_name(
+            self._config["parent_project_id"]
+        )
         phab_name = self._to_phab_project_name(name, parent_name)
         project_id = self._get_project_id(phab_name)
         if project_id is not None:
             logging.warn(
-                "Project '{}' already exists. It will not be created.".format(
-                    phab_name
-                )
+                "Project '{}' already exists. It will not be created.".format(phab_name)
             )
         else:
             parameters = {
                 "transactions": {
-                    "0": {
-                        "type": "name",
-                        "value": phab_name
-                    },
-                    "1": {
-                        "type": "description",
-                        "value": description
-                    },
-                    "2": {
-                        "type": "parent",
-                        "value": parent_phid
-                    }
+                    "0": {"type": "name", "value": phab_name},
+                    "1": {"type": "description", "value": description},
+                    "2": {"type": "parent", "value": parent_phid},
                 }
             }
             if self._dry_run:
@@ -123,10 +113,13 @@ class Phab:
         PhabApiError
             If the Conduit API response contains an error.
         """
-        wait_time = self._last_request_time - time() + \
-            self._config["request_delay"]
+        wait_time = self._last_request_time - time() + self._config["request_delay"]
         if wait_time > 0:
-            logging.debug("Waiting for {} seconds before making the next request to Conduit.".format(wait_time))  # noqa: E501
+            logging.debug(
+                "Waiting for {} seconds before making the next request to Conduit.".format(
+                    wait_time
+                )
+            )  # noqa: E501
             sleep(wait_time)
         parameters = self._to_phab_parameters(parameters_dict)
         # Add placeholder API token to not reveal the real one in logs.
@@ -134,30 +127,23 @@ class Phab:
         logged_parameters["api.token"] = "api-..."
         logging.debug(
             "POST to Phabricator API on {}/{}: {}".format(
-                self._config["api_url"],
-                endpoint,
-                logged_parameters
+                self._config["api_url"], endpoint, logged_parameters
             )
         )
         parameters["api.token"] = self._config["api_token"]
         self._last_request_time = time()
         response = requests.post(
-            "{}/{}".format(self._config["api_url"], endpoint),
-            parameters
+            "{}/{}".format(self._config["api_url"], endpoint), parameters
         ).json()
         if response["error_info"]:
-            raise PhabApiError("Error from Phabricator API: {}".format(
-                response["error_info"]
-            ))
+            raise PhabApiError(
+                "Error from Phabricator API: {}".format(response["error_info"])
+            )
         logging.debug("Response: {}".format(response))
         return response
 
     def _to_phab_parameters(
-            self,
-            dict_parameters,
-            phab_parameters=None,
-            prefix="",
-            top=True
+        self, dict_parameters, phab_parameters=None, prefix="", top=True
     ):
         """Convert a dict of parameters into Conduit request format.
 
@@ -210,18 +196,13 @@ class Phab:
                     new_prefix = "{}{}".format(prefix, key)
                 else:
                     new_prefix = "{}[{}]".format(prefix, key)
-                new_parameters = \
-                    self._to_phab_parameters(
-                        value,
-                        phab_parameters,
-                        new_prefix,
-                        False
-                    )
+                new_parameters = self._to_phab_parameters(
+                    value, phab_parameters, new_prefix, False
+                )
                 phab_parameters.update(new_parameters)
             elif type(value) is list:
                 for index, item in enumerate(value):
-                    parameter_key = \
-                        "{}[{}][{}]".format(prefix, key, index)
+                    parameter_key = "{}[{}][{}]".format(prefix, key, index)
                     phab_parameters[parameter_key] = item
             else:
                 parameter_key = "{}[{}]".format(prefix, key)
@@ -271,4 +252,5 @@ class Phab:
 
 class PhabApiError(Exception):
     """Raised when Conduit API returns an error."""
+
     pass

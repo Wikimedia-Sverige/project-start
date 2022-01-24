@@ -15,6 +15,7 @@ class Template:
         The parameters to pass to the template.
 
     """
+
     def __init__(self, name, subst=False, parameters=None):
         self._name = name
         self._subst = subst
@@ -30,8 +31,7 @@ class Template:
         if self._parameters:
             for name, value in self._parameters.items():
                 if isinstance(value, Template):
-                    output += \
-                        "\n| {} = {}".format(name, value.oneline_string())
+                    output += "\n| {} = {}".format(name, value.oneline_string())
                 else:
                     output += "\n| {} = {}".format(name, value)
             output += "\n}}"
@@ -61,11 +61,7 @@ class Template:
                     value_string = value.multiline_string(nesting_level + 1)
                 else:
                     value_string = value
-                output += "\n{}| {} = {}".format(
-                    indentation * 2,
-                    name,
-                    value_string
-                )
+                output += "\n{}| {} = {}".format(indentation * 2, name, value_string)
             output += "\n{}".format(indentation) + "}}"
         else:
             output += "}}"

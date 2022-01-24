@@ -22,9 +22,7 @@ def setup_logging(verbose):
     """
     format_ = "%(asctime)s[%(levelname)s](%(module)s): %(message)s"
     logging.basicConfig(
-        level=logging.DEBUG,
-        format=format_,
-        filename="project-start.log"
+        level=logging.DEBUG, format=format_, filename="project-start.log"
     )
     if verbose:
         level = logging.DEBUG
@@ -32,9 +30,7 @@ def setup_logging(verbose):
         level = logging.INFO
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(level)
-    stream_handler.setFormatter(
-        logging.Formatter(format_)
-    )
+    stream_handler.setFormatter(logging.Formatter(format_))
     logging.getLogger().addHandler(stream_handler)
 
 
@@ -120,8 +116,7 @@ def sanitize(unsanitized):
     sanitized = None
     if isinstance(unsanitized, dict):
         sanitized = {
-            sanitize_string(k): sanitize_string(v) for
-            k, v in unsanitized.items()
+            sanitize_string(k): sanitize_string(v) for k, v in unsanitized.items()
         }
     elif isinstance(unsanitized, list):
         sanitized = [sanitize_string(i) for i in unsanitized]
@@ -164,8 +159,7 @@ def get_goal_name(description):
     return description.split(" - ")[0]
 
 
-def add_wiki_project_pages(project_information, project_columns,
-                           phab_id, phab_name):
+def add_wiki_project_pages(project_information, project_columns, phab_id, phab_name):
     """Add a project page to the wiki.
 
     Also adds relevant subpages.
@@ -186,7 +180,7 @@ def add_wiki_project_pages(project_information, project_columns,
         phab_name,
         project_information,
         goals[english_name],
-        goal_fulfillments
+        goal_fulfillments,
     )
     name = project_information[project_columns["swedish_name"]]
     area = project_information[project_columns["area"]]
@@ -232,12 +226,11 @@ def process_project(project_information, project_columns):
         )
     )
     phab_id, phab_name = add_phab_project(project_information, project_columns)
-    add_wiki_project_pages(project_information, project_columns,
-                           phab_id, phab_name)
+    add_wiki_project_pages(project_information, project_columns, phab_id, phab_name)
     goals[project_name]["added"] = True
     wiki.add_project(
         project_information[project_columns["project_id"]],
-        project_information[project_columns["swedish_name"]]
+        project_information[project_columns["swedish_name"]],
     )
 
 
@@ -253,50 +246,53 @@ def load_args():
     parser.add_argument(
         "--year",
         "-y",
-        help=("Year for the projects created. "
-              "If not given, the current year will be used.")
+        help=(
+            "Year for the projects created. "
+            "If not given, the current year will be used."
+        ),
     )
     parser.add_argument(
         "--dry-run",
         "-d",
         help="Don't write anything to the target platforms.",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--verbose",
         "-v",
         help="Print all logging messages.",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--overwrite-wiki",
         "-w",
         help="Write to wiki even if pages exist.",
-        action="store_true"
+        action="store_true",
     )
-    parser.add_argument(
-        "--config",
-        "-c",
-        help="Config file.",
-        default="config.yaml"
-    )
+    parser.add_argument("--config", "-c", help="Config file.", default="config.yaml")
     parser.add_argument(
         "--project",
         "-p",
-        help=("Single project (English or Swedish name) to create. "
-              "If not given, all projects will be processed.")
+        help=(
+            "Single project (English or Swedish name) to create. "
+            "If not given, all projects will be processed."
+        ),
     )
     parser.add_argument(
         "project_file",
-        help=("Path to a file containing project information. "
-              "The data should be tab separated values."),
-        nargs=1
+        help=(
+            "Path to a file containing project information. "
+            "The data should be tab separated values."
+        ),
+        nargs=1,
     )
     parser.add_argument(
         "goal_file",
-        help=("Path to a file containing information about project goals. "
-              "The data should be tab separated values."),
-        nargs=1
+        help=(
+            "Path to a file containing information about project goals. "
+            "The data should be tab separated values."
+        ),
+        nargs=1,
     )
     return parser.parse_args()
 
@@ -317,8 +313,13 @@ if __name__ == "__main__":
     else:
         year = datetime.date.today().year
     project_columns = config["project_columns"]
-    wiki = Wiki(config["wiki"], project_columns, args.dry_run,
-                args.overwrite_wiki, year)
+    wiki = Wiki(
+        config["wiki"],
+        project_columns,
+        args.dry_run,
+        args.overwrite_wiki,
+        year,
+    )
     phab = Phab(config["phab"], args.dry_run)
 
     with open(args.project_file[0], newline="") as file_:
@@ -328,22 +329,24 @@ if __name__ == "__main__":
             project_information = sanitize(unsanitized_project_information)
             if args.project:
                 if args.project not in (
-                        project_information[project_columns["swedish_name"]],
-                        project_information[project_columns["english_name"]]):
+                    project_information[project_columns["swedish_name"]],
+                    project_information[project_columns["english_name"]],
+                ):
                     continue
                 else:
                     single_project_found = True
                     wiki.single_project_info(
                         project_information[project_columns["project_id"]],
-                        project_information[project_columns["swedish_name"]]
+                        project_information[project_columns["swedish_name"]],
                     )
             elif project_information[project_columns["skip"]]:
                 # handle skip outside of process_project to allow specifying a
                 # single project to override the skip value.
                 logging.info(
                     "Skipping '{}', marked as inactive.".format(
-                        project_information[
-                            project_columns["english_name"]]))
+                        project_information[project_columns["english_name"]]
+                    )
+                )
                 continue
             process_project(project_information, project_columns)
 
