@@ -361,7 +361,7 @@ class Wiki:
 
         """
 
-        for number in self._projects:
+        for number in self._projects.keys():
             if number[2:4] == strategy[0:2]:
                 yield number
 
@@ -670,7 +670,7 @@ class Wiki:
         for page in self._touched_pages:
             logging.info(page.title())
 
-    def update_project_name_template(self):
+    def update_project_name_templates(self):
         """Update project number and name templates."""
         name_template = Page(self._site, self._config["project_name_template"])
         number_template = Page(

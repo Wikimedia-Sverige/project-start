@@ -364,5 +364,5 @@ if __name__ == "__main__":
             "It will not be created.".format(args.project)
         )
 
-    wiki.update_project_name_template()
+    wiki.update_project_name_templates()
     wiki.log_report()
