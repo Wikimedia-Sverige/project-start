@@ -3,6 +3,6 @@ from enum import auto
 
 
 class Components(Enum):
-    PROJECT_MAIN_PAGE = 1
+    PROJECT_MAIN_PAGE = auto()
     PHABRICATOR = auto()
     CATEGORIES = auto()

@@ -383,8 +383,8 @@ class Wiki:
         if not self._prompt_year_pages:
             return True
 
-        print('Add page "{}"? (y/N)'.format(self._make_year_title(title)))
-        return input().lower() == "y"
+        prompt = 'Add page "{}"? (y/N)'.format(self._make_year_title(title))
+        return input().lower(prompt) == "y"
 
     def _add_projects_year_page(self):
         """Create a page with a list of the year's projects.
