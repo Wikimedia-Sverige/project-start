@@ -6,8 +6,8 @@ from wikitables.util import ftag
 
 from pywikibot import Page, Site
 
-from template import Template
 from const import Components
+from template import Template
 
 
 class Wiki:
@@ -38,7 +38,7 @@ class Wiki:
             goals,
             goal_fulfillments,
             components,
-            prompt_year_pages
+            prompt_add_pages
     ):
         self._config = config
         self._project_columns = project_columns
@@ -48,10 +48,10 @@ class Wiki:
         self._goals = goals
         self._goal_fulfillments = goal_fulfillments
         self._components = components
-        self._prompt_year_pages = prompt_year_pages
+        self._prompt_add_pages = prompt_add_pages
         self._site = Site()
         self._projects = {}
-        self._programs = []
+        self._programs = None
         self._touched_pages = []
 
     def add_project_page(
@@ -73,7 +73,10 @@ class Wiki:
         phab_name : str
             Name of the project's Phabricator project.
         """
-        if Components.PROJECT_MAIN_PAGE.value in self._components:
+        if (
+                self._components is None
+                or Components.PROJECT_MAIN_PAGE.value in self._components
+        ):
             self._add_project_main_page(parameters, phab_id, phab_name)
         if self._components is not None:
             # Get the subpages from component selection.
@@ -96,7 +99,10 @@ class Wiki:
             english_name = parameters[self._project_columns["english_name"]]
             self._goals[english_name]["added"] = True
 
-        if Components.CATEGORIES.value in self._components:
+        if (
+                self._components is None
+                or Components.CATEGORIES.value in self._components
+        ):
             area = self._project_columns["area"]
             self.add_project_categories(name, area)
 
@@ -328,7 +334,7 @@ class Wiki:
         simple_pages = year_pages["simple"]
         for raw_title, template_name in simple_pages.items():
             title = self._make_year_title(raw_title)
-            if not self._prompt_year_page(title):
+            if not self._prompt_add_page(title):
                 continue
 
             self._add_page_from_template(
@@ -337,15 +343,15 @@ class Wiki:
                 template_name,
                 [self._year]
             )
-        if self._prompt_year_page(year_pages["projects"]["title"]):
+        if self._prompt_add_page(year_pages["projects"]["title"]):
             self._add_projects_year_page()
-        if self._prompt_year_page(year_pages["program_overview"]["title"]):
+        if self._prompt_add_page(year_pages["program_overview"]["title"]):
             self._add_program_overview_year_page()
-        if self._prompt_year_page("categories"):
+        if self._prompt_add_page("categories"):
             self._add_year_categories()
-        if self._prompt_year_page(year_pages["current_projects_template"]):
+        if self._prompt_add_page(year_pages["current_projects_template"]):
             self._create_current_projects_template()
-        if self._prompt_year_page(year_pages["volunteer_tasks"]["title"]):
+        if self._prompt_add_page(year_pages["volunteer_tasks"]["title"]):
             self._add_volunteer_tasks_page()
 
     def _make_year_title(self, raw_string):
@@ -366,25 +372,25 @@ class Wiki:
         title = raw_string.replace("<YEAR>", str(self._year))
         return title
 
-    def _prompt_year_page(self, title):
-        """Prompt user for writing year page.
+    def _prompt_add_page(self, title):
+        """Prompt user for writing a page.
 
         Parameters
         ----------
         title : str
-            Title of the year page.
+            Title of the page.
 
         Returns
         -------
         bool
-            True if the prompt year pages command line is set or if
+            True if the prompt add pages command line is set or if
             the user answers "y", else False.
         """
-        if not self._prompt_year_pages:
+        if not self._prompt_add_pages:
             return True
 
         prompt = 'Add page "{}"? (y/N)'.format(self._make_year_title(title))
-        return input().lower(prompt) == "y"
+        return input(prompt).lower() == "y"
 
     def _add_projects_year_page(self):
         """Create a page with a list of the year's projects.
@@ -395,7 +401,7 @@ class Wiki:
 
         config = self._config["year_pages"]["projects"]
         content = ""
-        for program in self._programs:
+        for program in self._get_programs():
             content += "== {} {} ==\n".format(
                 program["number"],
                 program["name"]
@@ -462,40 +468,44 @@ class Wiki:
 
         """
 
-        name = self._projects[project]["name"]
+        name = self._projects[project]["sv"]
         project_template = \
             Template(":Projekt:{}/Projektdata".format(name))
         comment = Template("Utkommenterat", True, [project])
         return "{}{}\n".format(project_template, comment)
 
-    def add_project(self, number, name, program):
-        """Store project number, name and program.
+    def add_project(self, number, swedish_name, english_name):
+        """Store project number and name, Swedish and English, in a map.
 
         Parameters
         ----------
         number : str
             Project number.
-        name : str
-            Project name.
-        program : str
-            Program that this project belongs to.
+        swedish_name : str
+            Swedish project name.
+        english_name : str
+            English project name.
         """
 
         self._projects[number] = {
-            "name": name,
-            "program": program
+            "sv": swedish_name,
+            "en": english_name
         }
 
-    def parse_programs(self):
-        """Parse table with descriptions for program, strategies and names.
+    def _get_programs(self):
+        """Get descriptions for program, strategies and names.
 
-        Assumes a wikipage with a table formatted in a particular way,
-        with cells spanning mutiple rows and HTML comments containing
-        some of the information. An instance of such a table can be
-        found on:
+        Parses a table from the wiki or just return the result if it
+        has been parsed already. Assumes a wikipage with a table
+        formatted in a particular way, with cells spanning multiple
+        rows and HTML comments containing some of the information. An
+        instance of such a table can be found on:
         https://se.wikimedia.org/w/index.php?title=Verksamhetsplan_2019/Tabell_%C3%B6ver_program,_strategi_och_m%C3%A5l&oldid=75471.
 
         """
+
+        if self._programs is not None:
+            return self._programs
 
         operational_plan_page = Page(
             self._site,
@@ -514,7 +524,7 @@ class Wiki:
             table_string,
             flags=re.S
         )
-        programs = []
+        self._programs = []
         remaining_projects = list(self._projects.keys())
         # Split table on rows.
         rows = table_string.split("|-")
@@ -532,7 +542,7 @@ class Wiki:
                 # Row includes program.
                 program_name, program_number = \
                     re.match(r"(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
-                programs.append({
+                self._programs.append({
                     "number": program_number,
                     "name": program_name,
                     "strategies": []
@@ -545,7 +555,7 @@ class Wiki:
                         r"(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
                         cells[-2]
                     ).groups()
-                programs[-1]["strategies"].append({
+                self._programs[-1]["strategies"].append({
                     "number": strategy_number,
                     "description": strategy,
                     "short_description": strategy_short,
@@ -556,13 +566,13 @@ class Wiki:
                         strategy_number
                 ):
                     # Add projects for this strategy.
-                    programs[-1]["strategies"][-1]["projects"].append(
+                    self._programs[-1]["strategies"][-1]["projects"].append(
                         project
                     )
                     remaining_projects.remove(project)
             # The rightmost cell always contains a goal.
             goal = cells[-1]
-            programs[-1]["strategies"][-1]["goals"].append(goal)
+            self._programs[-1]["strategies"][-1]["goals"].append(goal)
         if remaining_projects:
             logging.warning(
                 "There were projects which could not be matched to programs, "
@@ -570,7 +580,7 @@ class Wiki:
                     ', '.join(remaining_projects)
                 )
             )
-        return programs
+        return self._programs
 
     def _add_program_overview_year_page(self):
         """Add a page with program overview.
@@ -584,7 +594,7 @@ class Wiki:
         config = self._config["year_pages"]["program_overview"]
         templates = config["templates"]
         content_parameter = ""
-        programs = self.parse_programs()
+        programs = self._get_programs()
         for p, program in enumerate(programs):
             content_parameter += Template(
                 templates["program"],
@@ -667,14 +677,13 @@ class Wiki:
             ns=self._config["project_namespace"])
         delimiter = "''' · '''"
         template_data = {}
-        for project in self._projects.values():
-            program = project["program"]
-            if program not in template_data:
-                template_data[program] = []
-            template_data[program].append(project["name"])
-        for program, projects in template_data.items():
-            template_data[program] = delimiter.join(
-                [project_format.format(proj=project)
+        for program in self._get_programs():
+            projects = set()
+            for strategy in program.get('strategies'):
+                # projects sorted by id to get thematic grouping
+                projects.update(strategy.get("projects"))
+            template_data[program.get('name')] = delimiter.join(
+                [project_format.format(proj=self._projects[project]["sv"])
                  for project in sorted(projects)])
 
         template = Template("Aktuella projekt/layout")
@@ -696,18 +705,13 @@ class Wiki:
         Creates a list of volunteer pages sorted by program.
         """
         project_list_string = ""
-        # Get programs from the project information.
-        programs = sorted(list(set([
-            p["program"] for p in self._projects.values()
-        ])))
-        for program in programs:
-            project_list_string += "== {} ==\n".format(program)
-            for project in self._projects.values():
-                if project["program"] == program:
-                    project_template = (
-                        "{{" + ":Projekt:{}/Frivillig".format(project["name"])
-                        + "}}\n"
-                    )
+        for program in self._get_programs():
+            project_list_string += "== {} ==\n".format(program["name"])
+            for strategy in program["strategies"]:
+                for number in strategy["projects"]:
+                    project_name = self._projects[number]["sv"]
+                    project_template = "{{" + \
+                        ":Projekt:{}/Frivillig".format(project_name) + "}}\n"
                     project_list_string += project_template
             comment = Template("Utkommenterat", True, ["Platshållare"])
             project_list_string += "{}&nbsp;\n\n".format(comment)
@@ -783,8 +787,10 @@ class Wiki:
                 number
             )
 
-        self._write_page(name_template)
-        self._write_page(number_template)
+        if self._prompt_add_page(name_template.title()):
+            self._write_page(name_template)
+        if self._prompt_add_page(number_template.title()):
+            self._write_page(number_template)
 
     def _insert_row_before_default(self, template, row, number):
         """Add a row to the template just above the default row.

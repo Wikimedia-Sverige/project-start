@@ -8,9 +8,9 @@ from collections import OrderedDict
 
 import yaml
 
+from const import Components
 from phab import Phab
 from wiki import Wiki
-from const import Components
 
 
 def setup_logging(verbose):
@@ -21,7 +21,7 @@ def setup_logging(verbose):
     verbose : bool
         If True, standard out handler will print every message.
     """
-    format_ = "%(asctime)s[%(levelname)s](%(module)s): %(message)s"
+    format_ = "%(asctime)s [%(levelname)s] (%(module)s): %(message)s"
     logging.basicConfig(
         level=logging.DEBUG,
         format=format_,
@@ -65,7 +65,9 @@ def pick_components():
     for i, option in enumerate(options, start=1):
         print("{}: {}".format(i, option))
 
-    selection_string = input()
+    selection_string = input(
+        "Select components by entering their numbers, delimited by space:\n"
+    )
     if selection_string == "":
         return []
 
@@ -228,15 +230,11 @@ def add_wiki_project_pages(project_information, project_columns,
         Name of the project on Phabricator
     """
     logging.info("Adding wiki pages.")
-    english_name = project_information[project_columns["english_name"]]
     wiki.add_project_page(
         project_information,
         phab_id,
         phab_name
     )
-    name = project_information[project_columns["swedish_name"]]
-    area = project_information[project_columns["area"]]
-    wiki.add_project_categories(name, area)
 
 
 def add_phab_project(project_information, project_columns):
@@ -347,10 +345,10 @@ def load_args():
               "project. Enter the corresponding numbers delimited by space.")
     )
     parser.add_argument(
-        "--prompt-year-pages",
+        "--prompt-add-pages",
         "-r",
         action="store_true",
-        help="Prompt before adding each year page."
+        help="Prompt before adding each general (non-project specific) page."
     )
     parser.add_argument(
         "project_file",
@@ -396,8 +394,17 @@ if __name__ == "__main__":
     else:
         year = datetime.date.today().year
     project_columns = config["project_columns"]
-    wiki = Wiki(config["wiki"], project_columns, args.dry_run,
-                args.overwrite_wiki, year)
+    wiki = Wiki(
+        config["wiki"],
+        project_columns,
+        args.dry_run,
+        args.overwrite_wiki,
+        year,
+        goals,
+        goal_fulfillments,
+        components,
+        args.prompt_add_pages
+    )
     phab = Phab(config["phab"], args.dry_run)
 
     with open(args.project_file[0], newline="") as file_:
@@ -437,7 +444,7 @@ if __name__ == "__main__":
         if goals:
             for project, parameters in goals.items():
                 if "added" not in parameters:
-                    logging.warn(
+                    logging.warning(
                         "Project name '{}' found in goals file, but "
                         "not in projects file. It will not be "
                         "created.".format(project)
