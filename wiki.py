@@ -659,7 +659,7 @@ class Wiki:
                 pages.append(self._make_year_title(v["title"]))
         logging.warning(
             "Don't forget to manually add '{number} - {name}' to the "
-            "following pages: {pages}".format(
+            "following pages:\n* {pages}".format(
                 number=number, name=sv_name, pages='\n* '.join(pages)
             )
         )
