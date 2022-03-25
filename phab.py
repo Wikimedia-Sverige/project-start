@@ -48,7 +48,7 @@ class Phab:
         phab_name = self._to_phab_project_name(name, parent_name)
         project_id = self._get_project_id(phab_name)
         if project_id is not None:
-            logging.warn(
+            logging.warning(
                 "Project '{}' already exists. It will not be created.".format(
                     phab_name
                 )

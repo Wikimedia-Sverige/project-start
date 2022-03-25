@@ -265,9 +265,11 @@ def process_project(project_information, project_columns):
         # Don't add anything for subprojects.
         return
     if goals and project_name not in goals:
-        logging.warn(
+        logging.warning(
             "Project name '{}' found in projects file, but not in goals file. "
-            "It will not be created.".format(project_name)
+            "It will not be created. If you tried to add components that "
+            "don't require goal information, run without the goal "
+            "file.".format(project_name)
         )
         return
     logging.info(
@@ -284,7 +286,8 @@ def process_project(project_information, project_columns):
         phab_id = phab_name = ""
     add_wiki_project_pages(project_information, project_columns,
                            phab_id, phab_name)
-    goals[project_name]["added"] = True
+    if goals:
+        goals[project_name]["added"] = True
     wiki.add_project(
         project_information[project_columns["project_number"]],
         project_information[project_columns["swedish_name"]],
@@ -451,7 +454,7 @@ if __name__ == "__main__":
                     )
         wiki.add_year_pages()
     elif not single_project_found:
-        logging.warn(
+        logging.warning(
             "Project name '{}' could not be found in projects file. "
             "It will not be created.".format(args.project)
         )

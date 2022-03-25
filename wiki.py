@@ -184,10 +184,10 @@ class Wiki:
             # Special case for goals parameters, as they are not
             # just copied.
             if not self._goals:
-                logging.error(
-                    ("Goals need to be supplied for page '{}', "
-                     "it will not be added.")
-                    .format(subpage["title"])
+                title = subpage["title"]
+                logging.warning(
+                    f"Goals need to be supplied for page '{title}', "
+                    "it will not be added."
                 )
                 return
 
@@ -512,6 +512,13 @@ class Wiki:
             self._make_year_title(
                 self._config["year_pages"]["operational_plan"])
         )
+        if not operational_plan_page.exists():
+            title = operational_plan_page.title()
+            raise Exception(
+                f"Page '{title}' doesn't exist and is required to create "
+                "this page."
+            )
+
         # Get table string. This assumes that it is the first table on
         # the page.
         table_string = str(mwp.parse(
