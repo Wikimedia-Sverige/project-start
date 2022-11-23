@@ -32,8 +32,8 @@ wiki:
           template_name: Mall:Frivillig-sida
           parameters:
               e-post_prefix: e_mail
-        - title: Global Metrics
-          template_name: Mall:Global Metrics-sida
+        - title: Metrics
+          template_name: Mall:Metrics-sida
         - title: Projektdata
           template_name: Projektdata-sida
           add_goals_parameters:
