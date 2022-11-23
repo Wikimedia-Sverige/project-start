@@ -400,8 +400,14 @@ class Wiki:
         """
 
         config = self._config["year_pages"]["projects"]
+        title = self._make_year_title(config["title"])
         content = ""
-        for program in self._get_programs():
+        try:
+            programs = self._get_programs()
+        except PageMissingError as error:
+            logging.error(f"Error when processing '{title}'.")
+            raise error
+        for program in programs:
             content += "== {} {} ==\n".format(
                 program["number"],
                 program["name"]
@@ -413,7 +419,6 @@ class Wiki:
                 )
                 for project in strategy["projects"]:
                     content += self._make_project_data_string(project)
-        title = self._make_year_title(config["title"])
         self._add_page_from_template(
             None,
             title,
@@ -514,10 +519,7 @@ class Wiki:
         )
         if not operational_plan_page.exists():
             title = operational_plan_page.title()
-            raise Exception(
-                f"Page '{title}' doesn't exist and is required to create "
-                "this page."
-            )
+            raise PageMissingError(title)
 
         # Get table string. This assumes that it is the first table on
         # the page.
@@ -599,9 +601,16 @@ class Wiki:
         """
 
         config = self._config["year_pages"]["program_overview"]
+        title = self._make_year_title(
+            self._config["year_pages"]["program_overview"]["title"]
+        )
         templates = config["templates"]
         content_parameter = ""
-        programs = self._get_programs()
+        try:
+            programs = self._get_programs()
+        except PageMissingError as error:
+            logging.error(f"Error when processing '{title}'.")
+            raise error
         for p, program in enumerate(programs):
             content_parameter += Template(
                 templates["program"],
@@ -633,9 +642,6 @@ class Wiki:
                         [project]
                     ).multiline_string()
                     content_parameter += "\n"
-        title = self._make_year_title(
-            self._config["year_pages"]["program_overview"]["title"]
-        )
         self._add_page_from_template(
             None,
             title,
@@ -684,7 +690,12 @@ class Wiki:
             ns=self._config["project_namespace"])
         delimiter = "''' · '''"
         template_data = {}
-        for program in self._get_programs():
+        try:
+            programs = self._get_programs()
+        except PageMissingError as error:
+            logging.error(f"Error when processing '{page_name}'.")
+            raise error
+        for program in programs():
             projects = set()
             for strategy in program.get('strategies'):
                 # projects sorted by id to get thematic grouping
@@ -711,8 +722,15 @@ class Wiki:
 
         Creates a list of volunteer pages sorted by program.
         """
+        config = self._config["year_pages"]["volunteer_tasks"]
+        title = self._make_year_title(config["title"])
         project_list_string = ""
-        for program in self._get_programs():
+        try:
+            programs = self._get_programs()
+        except PageMissingError as error:
+            logging.error(f"Error when processing '{title}'.")
+            raise error
+        for program in programs:
             project_list_string += "== {} ==\n".format(program["name"])
             for strategy in program["strategies"]:
                 for number in strategy["projects"]:
@@ -723,8 +741,6 @@ class Wiki:
             comment = Template("Utkommenterat", True, ["Platshållare"])
             project_list_string += "{}&nbsp;\n\n".format(comment)
 
-        config = self._config["year_pages"]["volunteer_tasks"]
-        title = self._make_year_title(config["title"])
         parameters = {
             "frivilliguppdrag": project_list_string,
             "år": self._year
@@ -831,3 +847,10 @@ class Wiki:
             fr"{row}\n\1",
             template.text
         )
+
+class PageMissingError(Exception):
+    def __init__(self, missing_page):
+        message = (f"Page '{missing_page}' doesn't exist and is "
+                   "required to create this page.")
+        super().__init__(message)
+
