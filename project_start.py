@@ -291,7 +291,8 @@ def process_project(project_information, project_columns):
     wiki.add_project(
         project_information[project_columns["project_number"]],
         project_information[project_columns["swedish_name"]],
-        project_information[project_columns["english_name"]]
+        project_information[project_columns["english_name"]],
+        project_information[project_columns["program"]]
     )
 
 

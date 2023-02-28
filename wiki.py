@@ -9,6 +9,7 @@ from pywikibot import Page, Site
 from const import Components
 from template import Template
 
+from pprint import pprint
 
 class Wiki:
     """Handles wiki interaction.
@@ -51,7 +52,7 @@ class Wiki:
         self._prompt_add_pages = prompt_add_pages
         self._site = Site()
         self._projects = {}
-        self._programs = None
+        self._programs = {}
         self._touched_pages = []
 
     def add_project_page(
@@ -103,8 +104,8 @@ class Wiki:
                 self._components is None
                 or Components.CATEGORIES.value in self._components
         ):
-            area = self._project_columns["area"]
-            self.add_project_categories(name, area)
+            program = self._project_columns["program"]
+            self.add_project_categories(name, program)
 
     def _add_project_main_page(self, parameters, phab_id, phab_name):
         """Add the main project page, i.e. "Projekt:NAME".
@@ -274,26 +275,26 @@ class Wiki:
             )
         return fulfillment_text
 
-    def add_project_categories(self, project, area):
+    def add_project_categories(self, project, program):
         """Add categories to the project's category page.
 
-        Adds the project category to categories for year and area, if
+        Adds the project category to categories for year and program, if
         given.
 
         Parameters
         ----------
         project : str
             The project name in Swedish.
-        area : str
-            The area category to add the project category to. If the
-            empty string, no area category is added.
+        program : str
+            The program category to add the project category to. If the
+            empty string, no program category is added.
 
         """
 
         year_category = "Projekt {}".format(self._year)
         categories = [year_category]
-        if area:
-            categories.append(area)
+        if program:
+            categories.append(program)
         self._add_category_page(project, categories)
 
     def _add_category_page(self, title, categories):
@@ -345,8 +346,8 @@ class Wiki:
             )
         if self._prompt_add_page(year_pages["projects"]["title"]):
             self._add_projects_year_page()
-        if self._prompt_add_page(year_pages["program_overview"]["title"]):
-            self._add_program_overview_year_page()
+        # if self._prompt_add_page(year_pages["program_overview"]["title"]):
+        #     self._add_program_overview_year_page()
         if self._prompt_add_page("categories"):
             self._add_year_categories()
         if self._prompt_add_page(year_pages["current_projects_template"]):
@@ -402,23 +403,25 @@ class Wiki:
         config = self._config["year_pages"]["projects"]
         title = self._make_year_title(config["title"])
         content = ""
-        try:
-            programs = self._get_programs()
-        except PageMissingError as error:
-            logging.error(f"Error when processing '{title}'.")
-            raise error
-        for program in programs:
-            content += "== {} {} ==\n".format(
-                program["number"],
-                program["name"]
-            )
-            for strategy in program["strategies"]:
-                content += "=== {} {} ===\n".format(
-                    strategy["number"],
-                    strategy["short_description"]
-                )
-                for project in strategy["projects"]:
-                    content += self._make_project_data_string(project)
+        # try:
+        #     programs = self._get_programs()
+        # except PageMissingError as error:
+        #     logging.error(f"Error when processing '{title}'.")
+        #     raise error
+        # pprint(self._projects)
+        # pprint(self._programs)
+
+        for program_name, program_number in self._programs.items():
+            content += "== {} {} ==\n".format(program_number, program_name)
+            # for strategy in program["strategies"]:
+                # content += "=== {} {} ===\n".format(
+                #     strategy["number"],
+                #     strategy["short_description"]
+                # )
+            for project_number, project in self._projects.items():
+                if project["program"] == program_name:
+                    content += self._make_project_data_string(project_number)
+
         self._add_page_from_template(
             None,
             title,
@@ -479,7 +482,7 @@ class Wiki:
         comment = Template("Utkommenterat", True, [project])
         return "{}{}\n".format(project_template, comment)
 
-    def add_project(self, number, swedish_name, english_name):
+    def add_project(self, number, swedish_name, english_name, program):
         """Store project number and name, Swedish and English, in a map.
 
         Parameters
@@ -494,102 +497,114 @@ class Wiki:
 
         self._projects[number] = {
             "sv": swedish_name,
-            "en": english_name
+            "en": english_name,
+            "program": program
         }
+        if program not in self._programs:
+            program_number = number[2] + "000"
+            self._programs[program] = program_number
 
-    def _get_programs(self):
-        """Get descriptions for program, strategies and names.
+        # pprint(self._programs)
 
-        Parses a table from the wiki or just return the result if it
-        has been parsed already. Assumes a wikipage with a table
-        formatted in a particular way, with cells spanning multiple
-        rows and HTML comments containing some of the information. An
-        instance of such a table can be found on:
-        https://se.wikimedia.org/w/index.php?title=Verksamhetsplan_2019/Tabell_%C3%B6ver_program,_strategi_och_m%C3%A5l&oldid=75471.
+    # def _get_programs(self):
+    #     """Get descriptions for program, strategies and names.
 
-        """
+    #     Parses a table from the wiki or just return the result if it
+    #     has been parsed already. Assumes a wikipage with a table
+    #     formatted in a particular way, with cells spanning multiple
+    #     rows and HTML comments containing some of the information. An
+    #     instance of such a table can be found on:
+    #     https://se.wikimedia.org/w/index.php?title=Verksamhetsplan_2019/Tabell_%C3%B6ver_program,_strategi_och_m%C3%A5l&oldid=75471.
 
-        if self._programs is not None:
-            return self._programs
+    #     """
 
-        operational_plan_page = Page(
-            self._site,
-            self._make_year_title(
-                self._config["year_pages"]["operational_plan"])
-        )
-        if not operational_plan_page.exists():
-            title = operational_plan_page.title()
-            raise PageMissingError(title)
+        # programs = {}
+        # for project in self._projects:
+            
 
-        # Get table string. This assumes that it is the first table on
-        # the page.
-        table_string = str(mwp.parse(
-            operational_plan_page.text
-        ).filter_tags(matches=ftag('table'))[0])
-        # Remove ref tags and links.
-        table_string = re.sub(
-            r"(<ref.*?>.*?</ref>|\[\[.*?\||\]\])",
-            "",
-            table_string,
-            flags=re.S
-        )
-        self._programs = []
-        remaining_projects = list(self._projects.keys())
-        # Split table on rows.
-        rows = table_string.split("|-")
-        for row in rows[1:]:
-            # Skip first rows; we don't need the headers.
-            if not row.rstrip("|}").strip():
-                # This is just the end table row, skip it.
-                continue
-            # Split rows on pipes and remove formatting.
-            cells = list(filter(None, map(
-                lambda c: c.split("|")[-1].strip(),
-                re.split(r"[\|\n]\|", row)
-            )))
-            if len(cells) == 3:
-                # Row includes program.
-                program_name, program_number = \
-                    re.match(r"(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
-                self._programs.append({
-                    "number": program_number,
-                    "name": program_name,
-                    "strategies": []
-                })
-            if len(cells) >= 2:
-                # Row includes strategy, which is always in the cell
-                # second from the right.
-                strategy, strategy_number, strategy_short = \
-                    re.match(
-                        r"(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
-                        cells[-2]
-                    ).groups()
-                self._programs[-1]["strategies"].append({
-                    "number": strategy_number,
-                    "description": strategy,
-                    "short_description": strategy_short,
-                    "projects": [],
-                    "goals": []
-                })
-                for project in self._get_projects_for_strategy(
-                        strategy_number
-                ):
-                    # Add projects for this strategy.
-                    self._programs[-1]["strategies"][-1]["projects"].append(
-                        project
-                    )
-                    remaining_projects.remove(project)
-            # The rightmost cell always contains a goal.
-            goal = cells[-1]
-            self._programs[-1]["strategies"][-1]["goals"].append(goal)
-        if remaining_projects:
-            logging.warning(
-                "There were projects which could not be matched to programs, "
-                "these will be skipped from overview pages: '{}'".format(
-                    ', '.join(remaining_projects)
-                )
-            )
-        return self._programs
+        # if self._programs is not None:
+        #     return self._programs
+
+        # operational_plan_page = Page(
+        #     self._site,
+        #     self._make_year_title(
+        #         self._config["year_pages"]["operational_plan"])
+        # )
+        # if not operational_plan_page.exists():
+        #     title = operational_plan_page.title()
+        #     raise PageMissingError(title)
+
+        # # Get table string. This assumes that it is the first table on
+        # # the page.
+        # table_string = str(mwp.parse(
+        #     operational_plan_page.text
+        # ).filter_tags(matches=ftag('table'))[0])
+        # # Remove ref tags and links.
+        # table_string = re.sub(
+        #     r"(<ref.*?>.*?</ref>|\[\[.*?\||\]\])",
+        #     "",
+        #     table_string,
+        #     flags=re.S
+        # )
+        # self._programs = []
+        # remaining_projects = list(self._projects.keys())
+        # # Split table on rows.
+        # rows = table_string.split("|-")
+        # for row in rows[1:]:
+        #     # Skip first rows; we don't need the headers.
+        #     if not row.rstrip("|}").strip():
+        #         # This is just the end table row, skip it.
+        #         continue
+        #     # Split rows on pipes and remove formatting.
+        #     cells = list(filter(None, map(
+        #         lambda c: c.split("|")[-1].strip(),
+        #         re.split(r"[\|\n]\|", row)
+        #     )))
+        #     if len(cells) == 3:
+        #         # Row includes program.
+        #         program_name, program_number = \
+        #             re.match(r"(.*)\s+<!--\s*(.*)\s*-->", cells[0]).groups()
+        #         self._programs.append({
+        #             "number": program_number,
+        #             "name": program_name,
+        #             "strategies": []
+        #         })
+        #     if len(cells) >= 2:
+        #         # Row includes strategy, which is always in the cell
+        #         # second from the right.
+        #         strategy, strategy_number, strategy_short = \
+        #             re.match(
+        #                 r"(.*)\s*<!--\s*(\d+)\s*(.*)\s-->",
+        #                 cells[-2]
+        #             ).groups()
+        #         self._programs[-1]["strategies"].append({
+        #             "number": strategy_number,
+        #             "description": strategy,
+        #             "short_description": strategy_short,
+        #             "projects": [],
+        #             "goals": []
+        #         })
+        #         for project in self._get_projects_for_strategy(
+        #                 strategy_number
+        #         ):
+        #             # Add projects for this strategy.
+        #             self._programs[-1]["strategies"][-1]["projects"].append(
+        #                 project
+        #             )
+        #             remaining_projects.remove(project)
+        #     # The rightmost cell always contains a goal.
+        #     goal = cells[-1]
+        #     self._programs[-1]["strategies"][-1]["goals"].append(goal)
+        # if remaining_projects:
+        #     logging.warning(
+        #         "There were projects which could not be matched to programs, "
+        #         "these will be skipped from overview pages: '{}'".format(
+        #             ', '.join(remaining_projects)
+        #         )
+        #     )
+        # from pprint import pprint
+        # pprint(self._programs)
+        # return self._programs
 
     def _add_program_overview_year_page(self):
         """Add a page with program overview.
@@ -674,6 +689,9 @@ class Wiki:
 
     def _create_current_projects_template(self):
         """Create a current projects template with the new projects."""
+
+        pprint(self._projects)
+        pprint(self._programs)
         page_name = self._make_year_title(
             self._config["year_pages"]["current_projects_template"]
         )
@@ -690,18 +708,23 @@ class Wiki:
             ns=self._config["project_namespace"])
         delimiter = "''' · '''"
         template_data = {}
-        try:
-            programs = self._get_programs()
-        except PageMissingError as error:
-            logging.error(f"Error when processing '{page_name}'.")
-            raise error
-        for program in programs:
-            projects = set()
-            for strategy in program.get('strategies'):
-                # projects sorted by id to get thematic grouping
-                projects.update(strategy.get("projects"))
-            template_data[program.get('name')] = delimiter.join(
-                [project_format.format(proj=self._projects[project]["sv"])
+        # try:
+        #     programs = self._get_programs()
+        # except PageMissingError as error:
+        #     logging.error(f"Error when processing '{page_name}'.")
+        #     raise error
+        for program in self._programs:
+            # projects = set()
+            # for strategy in program.get('strategies'):
+            #     # projects sorted by id to get thematic grouping
+            #     projects.update(strategy.get("projects"))
+            projects = []
+            for project_number, project in self._projects.items():
+                if project["program"] == program:
+                    projects.append(project["sv"])
+
+            template_data[program] = delimiter.join(
+                [project_format.format(proj=project)
                  for project in sorted(projects)])
 
         template = Template("Aktuella projekt/layout")
@@ -725,16 +748,18 @@ class Wiki:
         config = self._config["year_pages"]["volunteer_tasks"]
         title = self._make_year_title(config["title"])
         project_list_string = ""
-        try:
-            programs = self._get_programs()
-        except PageMissingError as error:
-            logging.error(f"Error when processing '{title}'.")
-            raise error
-        for program in programs:
-            project_list_string += "== {} ==\n".format(program["name"])
-            for strategy in program["strategies"]:
-                for number in strategy["projects"]:
-                    project_name = self._projects[number]["sv"]
+        # try:
+        #     programs = self._get_programs()
+        # except PageMissingError as error:
+        #     logging.error(f"Error when processing '{title}'.")
+        #     raise error
+        for program_name in self._programs:
+            project_list_string += "== {} ==\n".format(program_name)
+            # for strategy in program["strategies"]:
+            #     for number in strategy["projects"]:
+            for project_number, project in self._projects.items():
+                if project["program"] == program_name:
+                    project_name = project["sv"]
                     project_template = "{{" + \
                         ":Projekt:{}/Frivillig".format(project_name) + "}}\n"
                     project_list_string += project_template
