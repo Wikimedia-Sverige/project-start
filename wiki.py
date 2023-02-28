@@ -695,7 +695,7 @@ class Wiki:
         except PageMissingError as error:
             logging.error(f"Error when processing '{page_name}'.")
             raise error
-        for program in programs():
+        for program in programs:
             projects = set()
             for strategy in program.get('strategies'):
                 # projects sorted by id to get thematic grouping
