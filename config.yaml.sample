@@ -70,8 +70,6 @@ wiki:
     project_number_template:
 # Parameters for Phabricator
 phab:
-    # API-token for Conduit.
-    api_token: api-...
     # URL to the API.
     api_url: https://.../api
     # Id of the project that created projects will be subprojects

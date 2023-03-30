@@ -10,7 +10,7 @@ A configuration file, `config.yaml` by default, is needed to run. `config.yaml.s
 
 Configure Pywikibot, following the instructions on https://www.mediawiki.org/wiki/Manual:Pywikibot/user-config.py.
 
-To edit Phabricator, a Conduit API token is required. This can be generated in the user settings: `Settings` -> `Conduit API Tokens`.
+To edit Phabricator, a Conduit API token is required. This can be generated in the user settings: `Settings` -> `Conduit API Tokens`. The API token is read from environment variable `PHAB_API_TOKEN` which can be specified in the file `.env`.
 
 # Input Data
 ## Files
