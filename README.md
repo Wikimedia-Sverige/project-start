@@ -2,8 +2,9 @@ This bot adds initial information at the start of year for Wikimedia Sverige. It
 
 # Installation
 Install required libraries with pip:
-
-`pip install -r requirements.txt`
+```
+pip install -r requirements.txt
+```
 
 # Configuration
 A configuration file, `config.yaml` by default, is needed to run. `config.yaml.sample` has comments documenting the various parameters and can be used as a template.
@@ -25,7 +26,10 @@ The bot is run with the command:
 ./project_start.py project-file [goal-file]
 ```
 
-For flags, see command line help: `./project_start.py --help`.
+For flags, see command line help:
+```
+./project_start.py --help
+```
 
 ## Logging
 The most important log messages are written to standard out. If you want more detailed logging, see the log file *project-start.log*.
