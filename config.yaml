@@ -1,0 +1,87 @@
+goals:
+    project_row: 1
+    last_row: 56
+    first_project_column: F
+project_columns:
+    lead: Ansvarig
+    e_mail: Mejlprefix
+    project_number: Projektnummer
+    program: Program
+    swedish_name: Svenskt projektnamn
+    english_name: Engelskt projektnamn
+    about_english: Mini-description of the project
+    about_swedish: Om projektet
+    project_start: Projektstart
+    project_end: Projektslut
+    funder: Finansiär
+    funder_2: Finansiär 2
+    budget: Budget
+    budget_2: Budget 2
+    partners: Partner
+    super_project: Överprojekt
+    skip: Inaktiv
+wiki:
+    edit_summary: Sidan skapad av [[Nyårsbot]]
+    project_namespace: Projekt
+    project_template: Mall:Projekt-sida
+    project_parameters:
+        beskrivning: about_swedish
+        samarbetspartners: partners
+    subpages:
+        - title: Frivillig
+          template_name: Mall:Frivillig-sida
+          parameters:
+              e-post_prefix: e_mail
+        - title: Resultat och mätetal
+          template_name: Mall:Metrics-sida
+        - title: Projektdata
+          template_name: Projektdata-sida
+          add_goals_parameters:
+              interna_mål: Måltexter|<YEAR>
+          parameters:
+              ansvarig: lead
+              projektstart: project_start
+              projektslut: project_end
+              finansiär: funder
+              budget: budget
+              finansiär_2: funder_2
+              budget_2: budget_2
+          year_parameter: år
+    year_pages:
+        current_projects_template: Mall:Aktuella projekt <YEAR>
+        simple:
+            <YEAR>: Mall:Årsida
+            Diarium/<YEAR>: Mall:Diarium år
+            Beslut & attesteringar <YEAR>: Mall:Beslut & attesteringar år
+            Utbildning <YEAR>: Mall:Utbildning år
+            Tjänsteresor <YEAR>: Mall:Tjänsteresor år
+            Ansökningar <YEAR>: Mall:Ansökningar år
+            Omnämnande <YEAR>: Mall:Omnämnande år
+            Ekonomiska rapporter <YEAR>: Mall:Ekonomiska rapporter
+            Ledningsrapport <YEAR>: Mall:Ledningsrapport år
+            Checklista för nytt år/<YEAR>: :Checklista för nytt år
+        projects:
+            title: Projekt <YEAR>
+            template: Mall:Årsida för projekt
+        categories:
+            general: Föreningen <YEAR>
+            pages:
+                Föreningen <YEAR>: Föreningen
+                Projekt <YEAR>: Projekt efter verksamhetsår
+                Ledningsrapporter <YEAR>: Ledningsrapporter
+                Ansökningar <YEAR>: Ansökningar
+                Omnämnande <YEAR>:
+                    - Omnämnande
+                    - Media
+                Resor <YEAR>: Resor
+                Årsmöte <YEAR>: Årsmöte
+                Checklistor <YEAR>: Checklistor
+        volunteer_tasks:
+            title: Frivilliguppdrag <YEAR>
+            template: Mall:Frivilliguppdrag år
+    project_name_template: Mall:Projektnamn
+    project_number_template: Mall:Projektid
+phab:
+    api_url: https://phabricator.wikimedia.org/api
+    parent_project_id: 2480
+    request_delay: 1

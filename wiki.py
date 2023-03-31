@@ -51,7 +51,7 @@ class Wiki:
         self._prompt_add_pages = prompt_add_pages
         self._site = Site()
         self._projects = {}
-        self._programs = {}
+        self._programs = set()
         self._touched_pages = []
 
     def add_project_page(
@@ -401,10 +401,10 @@ class Wiki:
         title = self._make_year_title(config["title"])
         content = ""
 
-        for program_name in self._programs:
-            content += "== {} ==\n".format(program_name)
+        for program in self._programs:
+            content += "== {} ==\n".format(program)
             for project_number, project in self._projects.items():
-                if project["program"] == program_name:
+                if project["program"] == program:
                     content += self._make_project_data_string(project_number)
 
         self._add_page_from_template(
@@ -485,9 +485,7 @@ class Wiki:
             "en": english_name,
             "program": program
         }
-        if program not in self._programs:
-            program_number = number[2] + "000"
-            self._programs[program] = program_number
+        self._programs.add(program)
 
     def _add_year_categories(self):
         """Add category pages for a year.
@@ -529,7 +527,7 @@ class Wiki:
         template_data = {}
         for program in self._programs:
             projects = []
-            for project_number, project in self._projects.items():
+            for _, project in self._projects.items():
                 if project["program"] == program:
                     projects.append(project["sv"])
 
@@ -560,7 +558,7 @@ class Wiki:
         project_list_string = ""
         for program_name in self._programs:
             project_list_string += "== {} ==\n".format(program_name)
-            for project_number, project in self._projects.items():
+            for _, project in self._projects.items():
                 if project["program"] == program_name:
                     project_name = project["sv"]
                     project_template = "{{" + \
