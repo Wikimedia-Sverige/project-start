@@ -51,7 +51,7 @@ class Wiki:
         self._prompt_add_pages = prompt_add_pages
         self._site = Site()
         self._projects = {}
-        self._programs = set()
+        self._programs = []
         self._touched_pages = []
 
     def add_project_page(
@@ -406,6 +406,7 @@ class Wiki:
             for project_number, project in self._projects.items():
                 if project["program"] == program:
                     content += self._make_project_data_string(project_number)
+            content += "\n"
 
         self._add_page_from_template(
             None,
@@ -485,7 +486,8 @@ class Wiki:
             "en": english_name,
             "program": program
         }
-        self._programs.add(program)
+        if program not in self._programs:
+            self._programs.append(program)
 
     def _add_year_categories(self):
         """Add category pages for a year.
