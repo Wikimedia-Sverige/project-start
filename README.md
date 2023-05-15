@@ -1,9 +1,9 @@
-This bot adds initial information at the start of year for Wikimedia Sverige. It adds projects and year pages to our wiki (https://se.wikimedia.org) and to the Mediawiki Phabricator (https://phabricator.wikimedia.org). It runs with Python 3.
+This bot adds initial information at the start of year for Wikimedia Sverige. It adds projects and year pages to our wiki (https://se.wikimedia.org) and to the Mediawiki Phabricator (https://phabricator.wikimedia.org). It runs with Python 3.8.
 
 # Installation
 Install required libraries with pip:
 
-`$ pip install -r requirements.txt`
+`pip install -r requirements.txt`
 
 # Configuration
 A configuration file, `config.yaml` by default, is needed to run. `config.yaml.sample` has comments documenting the various parameters and can be used as a template.
@@ -22,9 +22,9 @@ Information about programs, strategies and goals are fetched from a table on a w
 # Running
 The bot is run with the command
 
-    $ ./project_start.py project-file goal-file
+    ./project_start.py project-file goal-file
 
-For flags, see command line help (`$ ./project_start.py --help`).
+For flags, see command line help (`./project_start.py --help`).
 
 ## Logging
 The most important log messages are written to standard out. If you want more detailed logging, see the log file *project-start.log*.
