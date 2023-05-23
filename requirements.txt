@@ -1,6 +1,4 @@
-pywikibot==3.0.20200111
-requests==2.20.0
-pyyaml>=4.2b1
-mwparserfromhell==0.5.2
-wikitables==0.4.2
-tox>=3.24.5,==3.*
+pywikibot==8.1.2
+pyyaml==6.0
+mwparserfromhell==0.6.4
+wikitables==0.5.5
