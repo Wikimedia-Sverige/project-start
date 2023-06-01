@@ -469,7 +469,7 @@ class Wiki:
         return "{}{}\n".format(project_template, comment)
 
     def add_project(self, number, swedish_name, english_name, program):
-        """Store project number and name, Swedish and English, in a map.
+        """Store project information in a map.
 
         Parameters
         ----------
@@ -479,6 +479,8 @@ class Wiki:
             Swedish project name.
         english_name : str
             English project name.
+        program : str
+            Which program the project is under.
         """
 
         self._projects[number] = {
