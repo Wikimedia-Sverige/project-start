@@ -103,7 +103,7 @@ class Wiki:
                 self._components is None
                 or Components.CATEGORIES.value in self._components
         ):
-            program = self._project_columns["program"]
+            program = parameters[self._project_columns["program"]]
             self._add_project_categories(name, program)
 
     def _add_project_main_page(self, parameters, phab_id, phab_name):
