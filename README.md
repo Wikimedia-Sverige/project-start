@@ -1,4 +1,4 @@
-This bot adds initial information at the start of year for Wikimedia Sverige. It adds projects and year pages to our wiki (https://se.wikimedia.org) and to the Mediawiki Phabricator (https://phabricator.wikimedia.org). It runs with Python 3.
+This bot adds initial information at the start of year for Wikimedia Sverige. It adds projects and year pages to our wiki (https://se.wikimedia.org) and to the Wikimedia Phabricator (https://phabricator.wikimedia.org). It runs with Python 3.8 or later.
 
 # Installation
 Install required libraries with pip:

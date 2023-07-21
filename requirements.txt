@@ -1,7 +1,5 @@
-mwparserfromhell==0.5.2
+pywikibot==8.1.2
+pyyaml==6.0
+mwparserfromhell==0.6.4
+wikitables==0.5.5
 python-dotenv==1.0.0
-pywikibot==3.0.20200111
-PyYAML==6.0
-requests==2.20.0
-tox==3.24.5
-wikitables==0.4.2
