@@ -6,10 +6,10 @@ project_columns:
     lead: Ansvarig
     e_mail: Mejlprefix
     project_number: Projektnummer
-    area: Program
+    program: Program
     swedish_name: Svenskt projektnamn
     english_name: Engelskt projektnamn
-    about_english: About the project
+    about_english: Mini-description of the project
     about_swedish: Om projektet
     project_start: Projektstart
     project_end: Projektslut
@@ -46,8 +46,8 @@ wiki:
               budget: budget
               finansiär_2: funder_2
               budget_2: budget_2
+          year_parameter: år
     year_pages:
-        operational_plan: Verksamhetsplan_<YEAR>/Tabell_över_program,_strategi_och_mål
         current_projects_template: Mall:Aktuella projekt <YEAR>
         simple:
             <YEAR>: Mall:Årsida
@@ -63,19 +63,6 @@ wiki:
         projects:
             title: Projekt <YEAR>
             template: Mall:Årsida för projekt
-        program_overview:
-            colours:
-                - "#339966"
-                - "#006699"
-                - "#990000"
-                - "#FF8C00"
-            title: Verksamhetsplan <YEAR>/Måluppfyllnad/Programöversikt
-            templates:
-                page: Mall:Programöversikt
-                program: Mall:Programöversikt/Program
-                strategy: Mall:Programöversikt/Strategi
-                goal: Mall:Programöversikt/Mål
-                project: Mall:Programöversikt/Projekt
         categories:
             general: Föreningen <YEAR>
             pages:
@@ -86,7 +73,6 @@ wiki:
                 Resor <YEAR>: Resor
                 Årsmöte <YEAR>: Årsmöte
                 Checklistor <YEAR>: Checklistor
-                Utbildning <YEAR>: Utbildning
                 Globala mätetal <YEAR>: Globala mätetal
         volunteer_tasks:
             title: Frivilliguppdrag <YEAR>
@@ -94,7 +80,6 @@ wiki:
     project_name_template: Mall:Projektnamn
     project_number_template: Mall:Projektid
 phab:
-    api_token: api-...
     api_url: https://phabricator.wikimedia.org/api
     parent_project_id: 2480
-    request_delay: 10
+    request_delay: 1

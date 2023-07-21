@@ -39,8 +39,6 @@ wiki:
               # put and the name of the template to use for the goals.
               template_parameter: Template:Goals
     year_pages:
-        # Page where the operational plan can be found.
-        operational_plan:
         # Template where current projects are listed
         current_projects_template:
         # Map of pages that will be created by substituting
@@ -52,19 +50,6 @@ wiki:
         projects:
             title:
             template:
-        # Parameters for program overview page.
-        program_overview:
-            # Colours to use in the program headers.
-            colours:
-                - #123456
-            title:
-            templates:
-                # Template that is substed to create the page.
-                page:
-                # Templates that are used by the page template. Maps
-                # parameter name in the page template to template
-                # name.
-                parameter: Template
         # Year categories.
         categories:
             # This category is added to each category page.
@@ -85,8 +70,6 @@ wiki:
     project_number_template:
 # Parameters for Phabricator
 phab:
-    # API-token for Conduit.
-    api_token: api-...
     # URL to the API.
     api_url: https://.../api
     # Id of the project that created projects will be subprojects

@@ -1,6 +1,5 @@
 *~
 *.log
-*.yaml
 
 lib64
 pip-selfcheck.json
@@ -9,6 +8,7 @@ throttle.ctrl
 user-password.py
 user-config.py
 pyvenv.cfg
+.env
 
 __pycache__/
 bin/

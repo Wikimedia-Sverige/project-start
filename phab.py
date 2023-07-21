@@ -1,7 +1,9 @@
 import logging
 from time import sleep, time
+import os
 
 import requests
+from dotenv import load_dotenv
 
 
 class Phab:
@@ -23,6 +25,8 @@ class Phab:
         self._config = config
         self._dry_run = dry_run
         self._last_request_time = 0.0
+        load_dotenv()
+        self._api_token = os.getenv("PHAB_API_TOKEN")
 
     def add_project(self, name, description):
         """Add project.
@@ -131,7 +135,7 @@ class Phab:
         parameters = self._to_phab_parameters(parameters_dict)
         # Add placeholder API token to not reveal the real one in logs.
         logged_parameters = parameters.copy()
-        logged_parameters["api.token"] = "api-..."
+        logged_parameters["api.token"] = "api-REDACTED"
         logging.debug(
             "POST to Phabricator API on {}/{}: {}".format(
                 self._config["api_url"],
@@ -139,7 +143,7 @@ class Phab:
                 logged_parameters
             )
         )
-        parameters["api.token"] = self._config["api_token"]
+        parameters["api.token"] = self._api_token
         self._last_request_time = time()
         response = requests.post(
             "{}/{}".format(self._config["api_url"], endpoint),

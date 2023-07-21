@@ -2,15 +2,16 @@ This bot adds initial information at the start of year for Wikimedia Sverige. It
 
 # Installation
 Install required libraries with pip:
-
-`$ pip install -r requirements.txt`
+```
+pip install -r requirements.txt
+```
 
 # Configuration
 A configuration file, `config.yaml` by default, is needed to run. `config.yaml.sample` has comments documenting the various parameters and can be used as a template.
 
 Configure Pywikibot, following the instructions on https://www.mediawiki.org/wiki/Manual:Pywikibot/user-config.py.
 
-To edit Phabricator, a Conduit API token is required. This can be generated in the user settings: `Settings` -> `Conduit API Tokens`.
+To edit Phabricator, a Conduit API token is required. This can be generated in the user settings: `Settings` -> `Conduit API Tokens`. The API token is read from environment variable `PHAB_API_TOKEN` which can be specified in the file `.env`.
 
 # Input Data
 ## Files
@@ -20,11 +21,15 @@ Two files are required to run the bot: one containing project information and on
 Information about programs, strategies and goals are fetched from a table on a wikipage, such as [this one from 2019](https://se.wikimedia.org/w/index.php?title=Verksamhetsplan_2019/Tabell_%C3%B6ver_program,_strategi_och_m%C3%A5l&oldid=75471). The code for this is specific for this particular table and would need to be adapted if the same information is represented in another way. Note that some information is stored in HTML comments.
 
 # Running
-The bot is run with the command
+The bot is run with the command:
+```
+./project_start.py project-file [goal-file]
+```
 
-    $ ./project_start.py project-file goal-file
-
-For flags, see command line help (`$ ./project_start.py --help`).
+For flags, see command line help:
+```
+./project_start.py --help
+```
 
 ## Logging
 The most important log messages are written to standard out. If you want more detailed logging, see the log file *project-start.log*.
