@@ -33,7 +33,8 @@ wiki:
           # Note that the "år"-parameter is always passed.
           parameters:
               template_parameter: label
-          # Add this only if the subpage should include goals.
+          # Add this only if the subpage should include goals. If no
+          # page has this parameter a goal file isn't required.
           add_goals_parameters:
               # Template parameter where the goals template should be
               # put and the name of the template to use for the goals.

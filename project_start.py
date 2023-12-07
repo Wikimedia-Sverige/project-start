@@ -363,7 +363,9 @@ def load_args():
     parser.add_argument(
         "goal_file",
         help=("Path to a file containing information about project goals. "
-              "The data should be tab separated values."),
+              "The data should be tab separated values. This parameter is "
+              "only needed if a subpage has the `add_goals_parameters` set "
+              "in the config."),
         nargs="?"
     )
     return parser.parse_args()
