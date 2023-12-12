@@ -23,8 +23,8 @@ wiki:
         # Parameter with string value.
         template_parameter_1:
             string: value
-        # Mapping between the parameter names in the project page template
-        # and the canonical label in project_columns above.
+        # Mapping between the parameter names in the project page
+        # template and the canonical label in project_columns above.
         template_parameter_2:
             column: label
     # A list of subpages that should be created under the project page.
@@ -33,7 +33,9 @@ wiki:
         - title:
           # Name of the template used to create subpage.
           template_name:
-          # Paramaters to pass to the subpage template. Uses the same formats as project_parameters.templates. Note that the "år"-parameter is always passed.
+          # Paramaters to pass to the subpage template. Uses the same
+          # formats as project_parameters.templates. Note that the
+          # "år"-parameter is always passed.
           parameters:
               template_parameter_1:
                   column: label
