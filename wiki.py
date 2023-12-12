@@ -132,7 +132,7 @@ class Wiki:
             # label = value.get("column")
             template.add_parameter(
                 template_parameter,
-                self._get_parameter_value(parameters, template_parameter)
+                self._get_parameter_value(parameters, value)
                 # parameters[self._project_columns[label]]
             )
         template.add_parameter("year", self._year)
@@ -178,8 +178,9 @@ class Wiki:
         # Always pass the year parameter.
         template_parameters = {"år": self._year}
         if "parameters" in subpage:
+            # print(f"project_parameters = {project_parameters}")
             for key, value in subpage["parameters"].items():
-                template_parameters[key] = self._get_parameter_value(project_parameters, key)
+                template_parameters[key] = self._get_parameter_value(project_parameters, value)
             #     if isinstance(value, dict):
             #         column = value.get("column")
             #         template_parameters[key] = project_parameters.get(
@@ -187,6 +188,7 @@ class Wiki:
             #         )
             #     else:
             #         template_parameters[key] = value
+            print(template_parameters)
         if "add_goals_parameters" in subpage:
             # Special case for goals parameters, as they are not
             # just copied.
@@ -219,10 +221,11 @@ class Wiki:
             template_parameters
         )
 
-    def _get_parameter_value(self, columns, key):
-        print(f"key = {key}")
-        parameters = self._config["project_parameters"]
-        value = parameters.get(key)
+    def _get_parameter_value(self, project_parameters, value):
+        # print(f"key = {key}")
+        # parameters = self._config["project_parameters"]
+        # value = parameters.get(key)
+        # print(f"project_parameters = {project_parameters}")
         print(f"value = {value}")
         if isinstance(value, dict):
             column = value.get("column")
@@ -231,8 +234,8 @@ class Wiki:
 
             label = self._project_columns.get(column)
             print(f"label = {label}")
-            print(f"columns = {columns}")
-            return columns.get(label)
+            print(f"column = {column}")
+            return project_parameters.get(label)
 
         return value
 
