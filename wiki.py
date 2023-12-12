@@ -221,23 +221,17 @@ class Wiki:
             template_parameters
         )
 
-    def _get_parameter_value(self, project_parameters, value):
-        # print(f"key = {key}")
-        # parameters = self._config["project_parameters"]
-        # value = parameters.get(key)
-        # print(f"project_parameters = {project_parameters}")
+    def _get_parameter_value(self, project_parameters, specification):
+        # Just get the first key and value since there should only be
+        # one.
+        value_type, value = list(specification.items())[0]
         print(f"value = {value}")
-        if isinstance(value, dict):
-            column = value.get("column")
-            if not column:
-                return None
-
-            label = self._project_columns.get(column)
+        if value_type == "string":
+            return value
+        elif value_type == "column":
+            label = self._project_columns.get(value)
             print(f"label = {label}")
-            print(f"column = {column}")
             return project_parameters.get(label)
-
-        return value
 
     def _add_page_from_template(
             self,

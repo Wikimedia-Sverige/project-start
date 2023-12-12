@@ -54,7 +54,8 @@ wiki:
                   column: funder_2
               budget_2:
                   column: budget_2
-              dolt_läge: 1
+              dolt_läge:
+                  string: 1
           year_parameter: år
     year_pages:
         current_projects_template: Mall:Aktuella projekt <YEAR>
