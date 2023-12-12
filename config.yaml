@@ -25,25 +25,36 @@ wiki:
     project_namespace: Projekt
     project_template: Mall:Projekt-sida
     project_parameters:
-        beskrivning: about_swedish
-        samarbetspartners: partners
+        beskrivning:
+            column: about_swedish
+        samarbetspartners:
+            column: partners
     subpages:
         - title: Frivillig
           template_name: Mall:Frivillig-sida
           parameters:
-              e-post_prefix: e_mail
+              e-post_prefix:
+                  column: e_mail
         - title: Resultat och mätetal
           template_name: Mall:Metrics-sida
         - title: Projektdata
           template_name: Projektdata-sida
           parameters:
-              ansvarig: lead
-              projektstart: project_start
-              projektslut: project_end
-              finansiär: funder
-              budget: budget
-              finansiär_2: funder_2
-              budget_2: budget_2
+              ansvarig:
+                  column: lead
+              projektstart:
+                  column: project_start
+              projektslut:
+                  column: project_end
+              finansiär:
+                  column: funder
+              budget:
+                  column: budget
+              finansiär_2:
+                  column: funder_2
+              budget_2:
+                  column: budget_2
+              dolt_läge: 1
           year_parameter: år
     year_pages:
         current_projects_template: Mall:Aktuella projekt <YEAR>

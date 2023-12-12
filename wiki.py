@@ -128,10 +128,12 @@ class Wiki:
 
         template = Template(self._config["project_template"], True)
         project_parameters = self._config["project_parameters"].items()
-        for template_parameter, label in project_parameters:
+        for template_parameter, value in project_parameters:
+            # label = value.get("column")
             template.add_parameter(
                 template_parameter,
-                parameters[self._project_columns[label]]
+                self._get_parameter_value(parameters, template_parameter)
+                # parameters[self._project_columns[label]]
             )
         template.add_parameter("year", self._year)
         template.add_parameter("phabricatorId", phab_id)
@@ -176,10 +178,15 @@ class Wiki:
         # Always pass the year parameter.
         template_parameters = {"år": self._year}
         if "parameters" in subpage:
-            for key, label in subpage["parameters"].items():
-                template_parameters[key] = project_parameters[
-                    self._project_columns[label]
-                ]
+            for key, value in subpage["parameters"].items():
+                template_parameters[key] = self._get_parameter_value(project_parameters, key)
+            #     if isinstance(value, dict):
+            #         column = value.get("column")
+            #         template_parameters[key] = project_parameters.get(
+            #             self._project_columns.get(column)
+            #         )
+            #     else:
+            #         template_parameters[key] = value
         if "add_goals_parameters" in subpage:
             # Special case for goals parameters, as they are not
             # just copied.
@@ -211,6 +218,23 @@ class Wiki:
             subpage["template_name"],
             template_parameters
         )
+
+    def _get_parameter_value(self, columns, key):
+        print(f"key = {key}")
+        parameters = self._config["project_parameters"]
+        value = parameters.get(key)
+        print(f"value = {value}")
+        if isinstance(value, dict):
+            column = value.get("column")
+            if not column:
+                return None
+
+            label = self._project_columns.get(column)
+            print(f"label = {label}")
+            print(f"columns = {columns}")
+            return columns.get(label)
+
+        return value
 
     def _add_page_from_template(
             self,
