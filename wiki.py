@@ -128,12 +128,10 @@ class Wiki:
 
         template = Template(self._config["project_template"], True)
         project_parameters = self._config["project_parameters"].items()
-        for template_parameter, value in project_parameters:
-            # label = value.get("column")
+        for template_parameter, specification in project_parameters:
             template.add_parameter(
                 template_parameter,
-                self._get_parameter_value(parameters, value)
-                # parameters[self._project_columns[label]]
+                self._get_project_parameter_value(parameters, specification)
             )
         template.add_parameter("year", self._year)
         template.add_parameter("phabricatorId", phab_id)
@@ -144,6 +142,36 @@ class Wiki:
         logging.info("Writing to project page '{}'".format(page.title()))
         logging.debug(page.text)
         self._write_page(page)
+
+    def _get_project_parameter_value(self, project_parameters, specification):
+        """Get the value of a project parameter specified in the config.
+
+        The specification has a key that dictates how the value is used:
+        "string" - the value is used as is.
+        "column" - the value is a key in project_columns in the
+          config. The return value is project paramter for that key.
+
+        Parameters
+        ----------
+        project_parameters : dict
+            Parameters for the project.
+        specifications : dict
+            A single key value pair. The key is the type of value,
+            either "string" or "column".
+
+        Returns
+        -------
+        str
+        """
+
+        # Just get the first key and value since there should only be
+        # one.
+        value_type, value = list(specification.items())[0]
+        if value_type == "string":
+            return value
+        elif value_type == "column":
+            label = self._project_columns.get(value)
+            return project_parameters.get(label)
 
     def _write_page(self, page):
         """Write a page unless this is a dry run.
@@ -178,17 +206,11 @@ class Wiki:
         # Always pass the year parameter.
         template_parameters = {"år": self._year}
         if "parameters" in subpage:
-            # print(f"project_parameters = {project_parameters}")
-            for key, value in subpage["parameters"].items():
-                template_parameters[key] = self._get_parameter_value(project_parameters, value)
-            #     if isinstance(value, dict):
-            #         column = value.get("column")
-            #         template_parameters[key] = project_parameters.get(
-            #             self._project_columns.get(column)
-            #         )
-            #     else:
-            #         template_parameters[key] = value
-            print(template_parameters)
+            for key, specification in subpage["parameters"].items():
+                template_parameters[key] = self._get_project_parameter_value(
+                    project_parameters,
+                    specification
+                )
         if "add_goals_parameters" in subpage:
             # Special case for goals parameters, as they are not
             # just copied.
@@ -220,18 +242,6 @@ class Wiki:
             subpage["template_name"],
             template_parameters
         )
-
-    def _get_parameter_value(self, project_parameters, specification):
-        # Just get the first key and value since there should only be
-        # one.
-        value_type, value = list(specification.items())[0]
-        print(f"value = {value}")
-        if value_type == "string":
-            return value
-        elif value_type == "column":
-            label = self._project_columns.get(value)
-            print(f"label = {label}")
-            return project_parameters.get(label)
 
     def _add_page_from_template(
             self,
