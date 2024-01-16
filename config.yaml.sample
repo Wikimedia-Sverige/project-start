@@ -18,22 +18,31 @@ wiki:
     project_namespace:
     # Name of the template used to create the project page.
     project_template:
-    # Mapping between the parameter names in the project page template
-    # and the canonical label in project_columns above.
+    # Parameters to pass to the template.
     project_parameters:
-        template_parameter: label
+        # Parameter with string value.
+        template_parameter_1:
+            string: value
+        # Mapping between the parameter names in the project page
+        # template and the canonical label in project_columns above.
+        template_parameter_2:
+            column: label
     # A list of subpages that should be created under the project page.
     subpages:
         # Title of the subpage.
         - title:
           # Name of the template used to create subpage.
           template_name:
-          # Mapping between the parameter names in the subpage
-          # template and the canonical label in project_columns above.
-          # Note that the "år"-parameter is always passed.
+          # Paramaters to pass to the subpage template. Uses the same
+          # formats as project_parameters.templates. Note that the
+          # "år"-parameter is always passed.
           parameters:
-              template_parameter: label
-          # Add this only if the subpage should include goals.
+              template_parameter_1:
+                  column: label
+              template_parameter_2:
+                  string: value
+          # Add this only if the subpage should include goals. If no
+          # page has this parameter a goal file isn't required.
           add_goals_parameters:
               # Template parameter where the goals template should be
               # put and the name of the template to use for the goals.
