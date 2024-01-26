@@ -15,4 +15,4 @@ jobs:
         run: pip install tox
       - name: Run tox
         # Run tox using the version of Python in `PATH`
-        run: tox
+        run: tox -e pytest -- --cov-report term --cov=wiki
