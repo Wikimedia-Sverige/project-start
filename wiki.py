@@ -4,6 +4,7 @@ import re
 import mwparserfromhell as mwp
 from wikitables.util import ftag
 
+import pywikibot
 from pywikibot import Page, Site
 
 from const import Components
@@ -182,6 +183,23 @@ class Wiki:
             The page to write to.
 
         """
+        if page.exists():
+            request = self._site.simple_request(
+                action="parse",
+                title=page.title(),
+                text=page.text,
+                contentmodel="wikitext",
+                prop="",
+                onlypst=1
+            )
+            data = request.submit()
+            from pprint import pprint
+            pprint(data)
+            parsed_text = data['parse']['text']["*"]
+            print("Cherry picking now")
+            print(pywikibot.diff.cherry_pick)
+            pywikibot.diff.cherry_pick(page.get(), parsed_text)
+
         if not self._dry_run:
             page.save(summary=self._config["edit_summary"])
         self._touched_pages.append(page)
