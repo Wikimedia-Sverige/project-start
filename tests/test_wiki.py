@@ -1,14 +1,13 @@
 import unittest
 from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import pywikibot
 from pywikibot import Page
 from pywikibot import Site
-# import mwparserfromhell as mwp
 from pywikibot.data.api import Request
 
 from wiki import Wiki
+
 
 class TestWiki(unittest.TestCase):
 
