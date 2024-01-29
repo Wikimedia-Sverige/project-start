@@ -190,8 +190,6 @@ class Wiki:
                 onlypst=1
             )
             data = request.submit()
-            from pprint import pprint
-            pprint(data)
             parsed_text = data['parse']['text']["*"]
             print("Cherry picking now")
             print(pywikibot.diff.cherry_pick)
