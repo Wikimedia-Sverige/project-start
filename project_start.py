@@ -264,6 +264,10 @@ def process_project(project_information, project_columns):
     if superproject:
         # Don't add anything for subprojects.
         return
+
+    if project_information.get(project_columns.get("active")) != "1":
+        return
+
     if goals and project_name not in goals:
         logging.warning(
             "Project name '{}' found in projects file, but not in goals file. "
@@ -435,14 +439,6 @@ if __name__ == "__main__":
                         project_information[project_columns["project_number"]],
                         project_information[project_columns["swedish_name"]]
                     )
-            elif project_information[project_columns["skip"]]:
-                # handle skip outside of process_project to allow specifying a
-                # single project to override the skip value.
-                logging.info(
-                    "Skipping '{}', marked as inactive.".format(
-                        project_information[
-                            project_columns["swedish_name"]]))
-                continue
             process_project(project_information, project_columns)
 
     if not args.project:
