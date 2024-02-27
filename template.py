@@ -20,7 +20,7 @@ class Template:
         self._subst = subst
         if parameters is None:
             self._parameters = OrderedDict()
-        elif type(parameters) == list:
+        elif isinstance(parameters, list):
             self._parameters = {i: p for i, p in enumerate(parameters, 1)}
         else:
             self._parameters = parameters
