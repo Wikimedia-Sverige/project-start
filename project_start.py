@@ -441,7 +441,7 @@ if __name__ == "__main__":
                 logging.info(
                     "Skipping '{}', marked as inactive.".format(
                         project_information[
-                            project_columns["english_name"]]))
+                            project_columns["swedish_name"]]))
                 continue
             process_project(project_information, project_columns)
 
