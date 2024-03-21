@@ -2,8 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 
 import pywikibot
-from pywikibot import Page
-from pywikibot import Site
+from pywikibot import Page, Site
 from pywikibot.data.api import Request
 
 from wiki import Wiki
