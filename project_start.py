@@ -246,9 +246,10 @@ def add_phab_project(project_information, project_columns):
     project_columns: dict
     """
     logging.info("Adding Phabricator project.")
-    name = project_information[project_columns["english_name"]]
+    name_en = project_information[project_columns["english_name"]]
+    name_sv = project_information[project_columns["swedish_name"]]
     description = project_information[project_columns["about_english"]]
-    return phab.add_project(name, description)
+    return phab.add_project(name_en, name_sv, description)
 
 
 def process_project(project_information, project_columns):

@@ -28,15 +28,18 @@ class Phab:
         load_dotenv()
         self._api_token = os.getenv("PHAB_API_TOKEN")
 
-    def add_project(self, name, description):
+    def add_project(self, name_en, name_sv, description):
         """Add project.
 
         Parameters
         ----------
-        name : str
-            Name of the project. This is modified to follow the
+        name_en : str
+            English name of the project. This is modified to follow the
             conventions specified at:
             https://www.mediawiki.org/wiki/Phabricator/Creating_and_renaming_projects#Good_practices_for_name_and_description
+        name_sv : str
+            Swedish name of the project. Used as additional hashtag to improve
+            search.
         description : str
             Description of the project in English. This is added as
             description in the project.
@@ -49,12 +52,13 @@ class Phab:
         """
         parent_phid, parent_name = \
             self._get_project_phid_and_name(self._config["parent_project_id"])
-        phab_name = self._to_phab_project_name(name, parent_name)
-        project_id = self._get_project_id(phab_name)
+        phab_name_en = self._to_phab_project_name(name_en, parent_name)
+        phab_name_sv = self._to_phab_project_name(name_sv, parent_name)
+        project_id = self._get_project_id(phab_name_en)
         if project_id is not None:
             logging.warning(
                 "Project '{}' already exists. It will not be created.".format(
-                    phab_name
+                    phab_name_en
                 )
             )
         else:
@@ -62,13 +66,17 @@ class Phab:
                 "transactions": {
                     "0": {
                         "type": "name",
-                        "value": phab_name
+                        "value": phab_name_en
                     },
                     "1": {
+                        "type": "slugs",
+                        "value": [phab_name_sv]
+                    },
+                    "2": {
                         "type": "description",
                         "value": description
                     },
-                    "2": {
+                    "3": {
                         "type": "parent",
                         "value": parent_phid
                     }
@@ -79,7 +87,7 @@ class Phab:
             else:
                 response = self._make_request("project.edit", parameters)
                 project_id = response["result"]["object"]["id"]
-        return project_id, phab_name
+        return project_id, phab_name_en
 
     def _get_project_phid_and_name(self, id_):
         """Get the PHID and name of a project.
@@ -112,7 +120,7 @@ class Phab:
 
         Parameters
         ----------
-        endpoint_ : str
+        endpoint : str
             Name of the endpoint to send the request to.
         parameters_dict : dict
             The parameters to send with the request.
