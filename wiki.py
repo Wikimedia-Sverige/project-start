@@ -583,10 +583,16 @@ class Wiki:
 
         template = Template("Aktuella projekt/layout")
         template.add_parameter("år", self._year)
-        template.add_parameter("access", template_data["Tillgång"])
-        template.add_parameter("use", template_data["Användning"])
-        template.add_parameter("community", template_data["Gemenskapen"])
-        template.add_parameter("enabling", template_data["Möjliggörande"])
+        template.add_parameter("access", template_data.get("Tillgång", ""))
+        template.add_parameter("use", template_data.get("Användning", ""))
+        template.add_parameter("community", template_data.get(
+            "Gemenskapen",
+            ""
+        ))
+        template.add_parameter("enabling", template_data.get(
+            "Möjliggörande",
+            ""
+        ))
 
         page.text = template.multiline_string() + \
             "\n<noinclude>{{Dokumentation}}</noinclude>"
