@@ -64,10 +64,7 @@ class Phab:
                 )
             )
         else:
-            siteinfo = pywikibot.Site().siteinfo
-            wiki_url = f"{siteinfo.get('server')}{siteinfo.get('articlepath').removesuffix('$1').removesuffix('/')}"
-            project_namespace = self._wiki_config.get("project_namespace")
-            description = f"//[[{wiki_url}/{project_namespace}:{name_sv} | More project information (in Swedish)]]//\n\n{description}"
+            description = self._make_description(description, name_sv)
             parameters = {
                 "transactions": {
                     "0": {
@@ -285,6 +282,31 @@ class Phab:
             return None
         else:
             return response["result"]["data"][0]["id"]
+
+    def _make_description(self, description, name_sv):
+        """Make a project description.
+
+        Adds a link to the wiki project page at the start.
+
+        Parameters
+        ----------
+        description : str
+            Text to use in description.
+        name_sv : str
+            Project name in Swedish.
+
+        Returns
+        -------
+        str
+            Project description.
+        """
+        siteinfo = pywikibot.Site().siteinfo
+        article_path = (siteinfo.get('articlepath').removesuffix('$1')
+                        .removesuffix('/'))
+        wiki_url = f"{siteinfo.get('server')}{article_path}"
+        project_namespace = self._wiki_config.get("project_namespace")
+        return (f"//[[{wiki_url}/{project_namespace}:{name_sv} | "
+                f"More project information (in Swedish)]]//\n\n{description}")
 
 
 class PhabApiError(Exception):
