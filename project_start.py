@@ -416,7 +416,7 @@ if __name__ == "__main__":
         components,
         args.prompt_add_pages
     )
-    phab = Phab(config["phab"], args.dry_run)
+    phab = Phab(config, args.dry_run)
 
     with open(args.project_file[0], newline="") as file_:
         projects_reader = csv.DictReader(file_, delimiter="\t")

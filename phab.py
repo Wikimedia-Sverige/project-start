@@ -86,6 +86,7 @@ class Phab:
                 }
             }
             if self._dry_run:
+                logging.debug(f"MOCK REQUEST: {parameters}")
                 project_id = 1
             else:
                 response = self._make_request("project.edit", parameters)
