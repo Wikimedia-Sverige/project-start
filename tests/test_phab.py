@@ -6,17 +6,19 @@ from phab import Phab
 
 class TestPhab(unittest.TestCase):
 
-    def setUp(self):
-        parameters = [None] * 2
-        self._phab = Phab(*parameters)
-
     @patch("phab.requests")
     def test_add_project(self, mock_requests):
-        self._phab._config = {
-            "parent_project_id": 1,
-            "request_delay": 0,
-            "api_url": "http://site.url"
+        config = {
+            "phab": {
+                "parent_project_id": 1,
+                "request_delay": 0,
+                "api_url": "http://site.url"
+            },
+            "wiki": {
+                "project_namespace": "Project"
+            }
         }
+        self._phab = Phab(config, False)
 
         def mock_post(url, data):
             if url.endswith("/project.search"):
@@ -39,8 +41,8 @@ class TestPhab(unittest.TestCase):
                 return mock_phab_request(result_object=result_object)
 
         mock_requests.post.side_effect = mock_post
-        name_en = "Project-in-English"
-        name_sv = "Projekt-på-svenska"
+        name_en = "Project in English"
+        name_sv = "Projekt på svenska"
         description = "Description of the project."
 
         result = self._phab.add_project(name_en, name_sv, description)
@@ -56,7 +58,7 @@ class TestPhab(unittest.TestCase):
             "transactions[1][value][0]") == "Parent-Projekt-på-svenska"
         assert edit_arguments.get("transactions[2][type]") == "description"
         assert edit_arguments.get(
-            "transactions[2][value]") == "Description of the project."
+            "transactions[2][value]") == "//[[//se.wikimedia.org/wiki/Project:Projekt på svenska | More project information (in Swedish)]]//\n\nDescription of the project."
         assert edit_arguments.get("transactions[3][type]") == "parent"
         assert edit_arguments.get(
             "transactions[3][value]") == "PHID-PROJ-abc123"

@@ -4,6 +4,7 @@ from time import sleep, time
 
 import requests
 from dotenv import load_dotenv
+import pywikibot
 
 
 class Phab:
@@ -21,8 +22,9 @@ class Phab:
         Time when last request was made, in seconds.
     """
 
-    def __init__(self, config, dry_run):
-        self._config = config
+    def __init__(self, main_config, dry_run):
+        self._config = main_config.get("phab")
+        self._wiki_config = main_config.get("wiki")
         self._dry_run = dry_run
         self._last_request_time = 0.0
         load_dotenv()
@@ -62,6 +64,10 @@ class Phab:
                 )
             )
         else:
+            siteinfo = pywikibot.Site().siteinfo
+            wiki_url = f"{siteinfo.get('server')}{siteinfo.get('articlepath').removesuffix('$1').removesuffix('/')}"
+            project_namespace = self._wiki_config.get("project_namespace")
+            description = f"//[[{wiki_url}/{project_namespace}:{name_sv} | More project information (in Swedish)]]//\n\n{description}"
             parameters = {
                 "transactions": {
                     "0": {
