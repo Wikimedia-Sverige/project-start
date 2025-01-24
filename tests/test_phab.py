@@ -58,7 +58,7 @@ class TestPhab(unittest.TestCase):
             "transactions[1][value][0]") == "Parent-Projekt-på-svenska"
         assert edit_arguments.get("transactions[2][type]") == "description"
         assert edit_arguments.get(
-            "transactions[2][value]") == "//[[//se.wikimedia.org/wiki/Project:Projekt på svenska | More project information (in Swedish)]]//\n\nDescription of the project."
+            "transactions[2][value]") == "//[[//se.wikimedia.org/wiki/Project:Projekt på svenska | More project information (in Swedish)]]//\n\nDescription of the project."  # noqa: E501
         assert edit_arguments.get("transactions[3][type]") == "parent"
         assert edit_arguments.get(
             "transactions[3][value]") == "PHID-PROJ-abc123"

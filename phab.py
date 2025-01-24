@@ -2,9 +2,9 @@ import logging
 import os
 from time import sleep, time
 
+import pywikibot
 import requests
 from dotenv import load_dotenv
-import pywikibot
 
 
 class Phab:
