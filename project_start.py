@@ -214,6 +214,10 @@ def get_goal_name(description):
     return description.split(" - ")[0]
 
 
+def is_active(project_information, project_columns):
+    return project_information.get(project_columns.get("active")) == "1"
+
+
 def add_wiki_project_pages(project_information, project_columns,
                            phab_id, phab_name):
     """Add a project page to the wiki.
@@ -436,7 +440,7 @@ if __name__ == "__main__":
                         project_information[project_columns["project_number"]],
                         project_information[project_columns["swedish_name"]]
                     )
-            elif project_information[project_columns["skip"]]:
+            elif not is_active(project_information, project_columns):
                 # handle skip outside of process_project to allow specifying a
                 # single project to override the skip value.
                 logging.info(

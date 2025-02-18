@@ -19,7 +19,7 @@ project_columns:
     budget_2: Budget 2
     partners: Partner
     super_project: Överprojekt
-    skip: Inaktiv
+    active: Aktiv
 wiki:
     edit_summary: Sidan skapad av [[Nyårsbot]]
     project_namespace: Projekt
