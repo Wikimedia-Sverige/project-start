@@ -586,7 +586,7 @@ class Wiki:
         template.add_parameter("access", template_data.get("Tillgång", ""))
         template.add_parameter("use", template_data.get("Användning", ""))
         template.add_parameter("community", template_data.get(
-            "Gemenskapen",
+            "Gemenskap",
             ""
         ))
         template.add_parameter("enabling", template_data.get(
