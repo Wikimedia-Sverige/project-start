@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import pywikibot
+
 from phab import Phab
 
 
@@ -41,6 +43,8 @@ class TestPhab(unittest.TestCase):
                 return mock_phab_request(result_object=result_object)
 
         mock_requests.post.side_effect = mock_post
+        pywikibot.config.family = "wikimediachapter"
+        pywikibot.config.mylang = "se"
         name_en = "Project in English"
         name_sv = "Projekt på svenska"
         description = "Description of the project."
