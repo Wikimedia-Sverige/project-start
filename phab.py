@@ -2,6 +2,7 @@ import logging
 import os
 from time import sleep, time
 
+import pywikibot
 import requests
 from dotenv import load_dotenv
 
@@ -21,8 +22,9 @@ class Phab:
         Time when last request was made, in seconds.
     """
 
-    def __init__(self, config, dry_run):
-        self._config = config
+    def __init__(self, main_config, dry_run):
+        self._config = main_config.get("phab")
+        self._wiki_config = main_config.get("wiki")
         self._dry_run = dry_run
         self._last_request_time = 0.0
         load_dotenv()
@@ -62,6 +64,7 @@ class Phab:
                 )
             )
         else:
+            description = self._make_description(description, name_sv)
             parameters = {
                 "transactions": {
                     "0": {
@@ -83,6 +86,7 @@ class Phab:
                 }
             }
             if self._dry_run:
+                logging.debug(f"MOCK REQUEST: {parameters}")
                 project_id = 1
             else:
                 response = self._make_request("project.edit", parameters)
@@ -279,6 +283,31 @@ class Phab:
             return None
         else:
             return response["result"]["data"][0]["id"]
+
+    def _make_description(self, description, name_sv):
+        """Make a project description.
+
+        Adds a link to the wiki project page at the start.
+
+        Parameters
+        ----------
+        description : str
+            Text to use in description.
+        name_sv : str
+            Project name in Swedish.
+
+        Returns
+        -------
+        str
+            Project description.
+        """
+        siteinfo = pywikibot.Site().siteinfo
+        article_path = (siteinfo.get('articlepath').removesuffix('$1')
+                        .removesuffix('/'))
+        wiki_url = f"{siteinfo.get('server')}{article_path}"
+        project_namespace = self._wiki_config.get("project_namespace")
+        return (f"//[[{wiki_url}/{project_namespace}:{name_sv} | "
+                f"More project information (in Swedish)]]//\n\n{description}")
 
 
 class PhabApiError(Exception):
