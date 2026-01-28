@@ -22,7 +22,7 @@ class TestPhab(unittest.TestCase):
         }
         self._phab = Phab(config, False)
 
-        def mock_post(url, data):
+        def mock_post(url, data, headers):
             if url.endswith("/project.search"):
                 if data.get("constraints[ids][0]") == 1:
                     parent_project_data = {

@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from time import sleep, time
 
 import pywikibot
@@ -159,14 +160,21 @@ class Phab:
         self._last_request_time = time()
         response = requests.post(
             "{}/{}".format(self._config["api_url"], endpoint),
-            parameters
-        ).json()
-        if response["error_info"]:
+            parameters,
+            headers={"User-Agent": "project-start (https://github.com/Wikimedia-Sverige/project-start"} # noqa: 501
+        )
+        try:
+            response_content = response.json()
+        except Exception:
+            raise Exception(
+                f"Failed parsing response as JSON: {response.text}"
+            )
+        if response_content["error_info"]:
             raise PhabApiError("Error from Phabricator API: {}".format(
-                response["error_info"]
+                response_content["error_info"]
             ))
-        logging.debug("Response: {}".format(response))
-        return response
+        logging.debug("Response: {}".format(response_content))
+        return response_content
 
     def _to_phab_parameters(
             self,
@@ -261,7 +269,7 @@ class Phab:
             by the parent name.
 
         """
-        return "{}-{}".format(parent_name, name.replace(" ", "-"))
+        return "{}-{}".format(parent_name, re.sub(r"[ :]+", "-", name))
 
     def _get_project_id(self, name):
         """Get the id of a project.
